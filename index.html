@@ -349,8 +349,9 @@ async function loadItems(folder) {
     const data = await apiFetch(`/list?folder=${encodeURIComponent(folder)}`).then(r => r.json());
     items = data.items || [];
     renderItems();
-  } catch (_) {
-    grid.innerHTML = '<div class="empty"><div class="empty-icon">😢</div><div class="empty-title">불러오기 실패</div><div style="font-size:13px">네트워크를 확인해주세요</div></div>';
+  } catch (e) {
+    const msg = e.name === 'AbortError' ? '응답 시간이 초과됐어요 😢' : '불러오기 실패 😢';
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">😢</div><div class="empty-title">${msg}</div><div style="font-size:13px;margin-top:4px"><button onclick="loadItems('${folder}')" style="background:var(--pink);color:white;border:none;border-radius:20px;padding:8px 18px;font-size:13px;cursor:pointer;font-family:inherit;">다시 시도</button></div></div>`;
   }
 }
 
@@ -501,9 +502,11 @@ function saveSettings() {
 
 /* ── 유틸 ── */
 function apiFetch(path, method = 'GET', body = null) {
-  const opts = {method, headers: {'X-Secret-Key': SECRET_KEY}};
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000); // 10초 타임아웃
+  const opts = { method, headers: {'X-Secret-Key': SECRET_KEY}, signal: controller.signal };
   if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
-  return fetch(WORKER_URL + path, opts);
+  return fetch(WORKER_URL + path, opts).finally(() => clearTimeout(timeout));
 }
 function getDomain(url) { try { return new URL(url).hostname; } catch (_) { return url; } }
 function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
