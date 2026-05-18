@@ -237,7 +237,7 @@ var SK = localStorage.getItem('damdam_secret_key') || '';
 var curFolder = 'all', editOn = false, folderOpen = false;
 var allItems = [], allFolders = [], delPending = null;
 var vItems = [], vIdx = 0, tStart = 0;
-var addType = 'link', addFolder = '';
+var addType = 'link', addFolders = [];
 
 // ── 시작 ──────────────────────────────────────────────────────────────────
 window.onload = function() {
@@ -364,7 +364,7 @@ function buildCard(item) {
     card.appendChild(img);
     var foot = document.createElement('div');
     foot.className = 'cfoot';
-    foot.innerHTML = '<span class="ctype">🖼 이미지</span>' + (item.folder ? '<div class="cfolder"># ' + esc(item.folder) + '</div>' : '');
+    foot.innerHTML = '<span class="ctype">🖼 이미지</span>' + (item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '');
     card.appendChild(foot);
     card.onclick = function() {
       if (editOn) return;
@@ -384,14 +384,14 @@ function buildCard(item) {
     body.innerHTML = '<span class="ctype">🔗 링크</span><div class="ctitle">' + esc(item.title) + '</div>' +
       (item.url ? '<div class="csub">' + esc(domain(item.url)) + '</div>' : '') +
       (item.memo ? '<div class="cmemo">' + esc(item.memo) + '</div>' : '') +
-      (item.folder ? '<div class="cfolder"># ' + esc(item.folder) + '</div>' : '');
+      (item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '');
     card.appendChild(body);
     card.onclick = function() { if (!editOn && item.url) window.open(item.url, '_blank'); };
 
   } else {
     card.innerHTML += '<div class="cmemo-full">' + esc(item.memo || item.title) + '</div>' +
       '<div class="cbody" style="padding-top:0"><span class="ctype">📝 메모</span>' +
-      (item.folder ? '<div class="cfolder"># ' + esc(item.folder) + '</div>' : '') + '</div>';
+      (item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '') + '</div>';
   }
   return card;
 }
@@ -486,7 +486,7 @@ async function resetApp() {
 
 // ── 직접 추가 ─────────────────────────────────────────────────────────────
 function openAdd() {
-  addType = 'link'; addFolder = '';
+  addType = 'link'; addFolders = [];
   document.getElementById('addUrl').value = '';
   document.getElementById('addMemoNote').value = '';
   document.getElementById('addMemoText').value = '';
@@ -515,9 +515,9 @@ function renderAddFolders() {
   allFolders.forEach(function(n) {
     var b = document.createElement('button'); b.className = 'fsel-btn'; b.textContent = n;
     b.onclick = function() {
-      addFolder = n;
-      document.querySelectorAll('.fsel-btn').forEach(function(x) { x.classList.remove('on'); });
-      b.classList.add('on');
+      var idx = addFolders.indexOf(n);
+      if (idx >= 0) { addFolders.splice(idx, 1); b.classList.remove('on'); }
+      else          { addFolders.push(n);         b.classList.add('on'); }
     };
     sel.appendChild(b);
   });
@@ -536,7 +536,7 @@ function submitAdd() {
   if (addType === 'link') {
     var url = document.getElementById('addUrl').value.trim();
     if (!url) { toast('URL을 입력해주세요'); done(); return; }
-    apiFetch('/save-link', 'POST', {url:url, folder:addFolder, memo:document.getElementById('addMemoNote').value.trim()},
+    apiFetch('/save-link', 'POST', {url:url, folders:addFolders, memo:document.getElementById('addMemoNote').value.trim()},
       function() { toast('담았어요 🌸'); closeAdd(); loadItems(curFolder); done(); },
       function() { toast('저장 실패'); done(); });
 
@@ -545,7 +545,7 @@ function submitAdd() {
     if (!files.length) { toast('이미지를 선택해주세요'); done(); return; }
     var fd = new FormData();
     Array.from(files).forEach(function(f) { fd.append('images', f); });
-    fd.append('folder', addFolder);
+    addFolders.forEach(function(f){fd.append('folders[]',f)});
     fd.append('memo', document.getElementById('addMemoNote').value.trim());
     fetch(WU + '/save-images', {method:'POST', headers:{'X-Secret-Key':SK}, body:fd})
       .then(function() { toast('담았어요 🌸'); closeAdd(); loadItems(curFolder); done(); })
@@ -554,7 +554,7 @@ function submitAdd() {
   } else {
     var txt = document.getElementById('addMemoText').value.trim();
     if (!txt) { toast('내용을 입력해주세요'); done(); return; }
-    apiFetch('/save-link', 'POST', {title:txt, url:'', folder:addFolder, memo:txt},
+    apiFetch('/save-link', 'POST', {title:txt, url:'', folders:addFolders, memo:txt},
       function() { toast('담았어요 🌸'); closeAdd(); loadItems(curFolder); done(); },
       function() { toast('저장 실패'); done(); });
   }
