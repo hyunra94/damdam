@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>담담 — 저장하기</title>
+  <link rel="icon" href="https://hyunra94.github.io/assets/favicon.png">
+  <meta property="og:image" content="https://hyunra94.github.io/assets/og-default.png">
+  <meta property="og:url" content="https://hyunra94.github.io/damdam/share.html">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#FF8FAB">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --pink:       #FF8FAB;
+      --pink-light: #FFD6E0;
+      --pink-pale:  #FFF0F5;
+      --pink-deep:  #E8557A;
+      --text:       #2D2D2D;
+      --text-sub:   #888;
+      --bg:         #FFF0F5;
+      --white:      #FFFFFF;
+      --radius:     16px;
+      --shadow:     0 4px 20px rgba(255,143,171,0.18);
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: rgba(0,0,0,0.45);
+      min-height: 100dvh;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    /* ── 바텀시트 ── */
+    .sheet {
+      width: 100%;
+      max-width: 480px;
+      background: var(--white);
+      border-radius: 24px 24px 0 0;
+      padding: 12px 20px calc(20px + env(safe-area-inset-bottom));
+      animation: slideUp .28s cubic-bezier(.25,.8,.25,1);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0);   opacity: 1; }
+    }
+
+    .handle {
+      width: 36px; height: 4px;
+      background: #E0E0E0;
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+
+    /* ── 상단 툴바 ── */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .btn-cancel {
+      background: none; border: none; cursor: pointer;
+      font-family: inherit; font-size: 15px;
+      color: var(--text-sub); padding: 4px 0;
+    }
+    .btn-confirm {
+      background: var(--pink); border: none; cursor: pointer;
+      font-family: inherit; font-size: 15px; font-weight: 700;
+      color: white; padding: 8px 22px;
+      border-radius: 20px;
+      transition: background .15s, transform .1s;
+    }
+    .btn-confirm:active { transform: scale(.96); background: var(--pink-deep); }
+    .btn-confirm:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+
+    /* ── 미리보기 ── */
+    .preview {
+      background: var(--pink-pale);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .preview-thumb {
+      width: 52px; height: 52px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--pink-light);
+    }
+    .preview-thumb-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 52px);
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .preview-thumb-grid img {
+      width: 52px; height: 52px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: var(--pink-light);
+    }
+    .preview-icon {
+      width: 52px; height: 52px;
+      border-radius: 10px;
+      background: var(--pink-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .preview-info { flex: 1; min-width: 0; }
+    .preview-title {
+      font-size: 14px; font-weight: 500; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+    .preview-sub {
+      font-size: 12px; color: var(--text-sub);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .preview-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 600; color: var(--pink-deep);
+      background: var(--pink-light);
+      padding: 2px 8px; border-radius: 10px; margin-bottom: 4px;
+    }
+
+    /* ── 폴더 섹션 ── */
+    .section-label {
+      font-size: 15px; font-weight: 700;
+      color: var(--pink-deep);
+      margin-bottom: 12px;
+    }
+
+    .folder-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .folder-btn {
+      padding: 10px 6px;
+      border: 1.5px solid #EAEAEA;
+      border-radius: 12px;
+      background: var(--white);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px; font-weight: 500;
+      color: var(--text);
+      transition: all .15s;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .folder-btn:active { transform: scale(.96); }
+    .folder-btn.selected {
+      border-color: var(--pink);
+      background: var(--pink-pale);
+      color: var(--pink-deep);
+      font-weight: 700;
+    }
+
+    /* ── 메모 ── */
+    .memo-label {
+      font-size: 15px; font-weight: 700;
+      color: var(--text); margin-bottom: 8px;
+    }
+    .memo-input {
+      width: 100%; resize: none;
+      border: 1.5px solid #EAEAEA;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 14px; color: var(--text);
+      background: var(--white);
+      outline: none;
+      transition: border-color .15s;
+      line-height: 1.5;
+    }
+    .memo-input:focus { border-color: var(--pink); }
+    .memo-input::placeholder { color: #C0C0C0; }
+    .memo-count {
+      text-align: right;
+      font-size: 11px; color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    /* ── 로딩/에러 ── */
+    .loading-folders {
+      text-align: center; padding: 20px 0;
+      color: var(--text-sub); font-size: 14px;
+    }
+    .toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.75); color: white;
+      padding: 10px 20px; border-radius: 20px;
+      font-size: 14px; white-space: nowrap;
+      animation: fadeInOut 2s ease forwards;
+      z-index: 999;
+    }
+    @keyframes fadeInOut {
+      0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      20%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+      80%  { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .saving-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(255,240,245,0.85);
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 12px;
+      z-index: 100;
+    }
+    .saving-overlay.show { display: flex; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--pink-light);
+      border-top-color: var(--pink);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .saving-text { font-size: 15px; font-weight: 500; color: var(--pink-deep); }
+  </style>
+</head>
+<body>
+
+<div class="saving-overlay" id="savingOverlay">
+  <div class="spinner"></div>
+  <div class="saving-text">저장 중...</div>
+</div>
+
+<div class="sheet">
+  <div class="handle"></div>
+
+  <div class="toolbar">
+    <button class="btn-cancel" onclick="cancel()">취소</button>
+    <button class="btn-confirm" id="btnConfirm" onclick="confirm()" disabled>확인</button>
+  </div>
+
+  <!-- 미리보기 -->
+  <div id="previewArea"></div>
+
+  <!-- 폴더 선택 -->
+  <div class="section-label">어떤 폴더에 담을까요?</div>
+  <div class="folder-grid" id="folderGrid">
+    <div class="loading-folders">폴더 불러오는 중…</div>
+  </div>
+
+  <!-- 메모 -->
+  <div class="memo-label">메모</div>
+  <textarea class="memo-input" id="memoInput" rows="3"
+    placeholder="키워드로 메모해두면 쉽게 찾아볼 수 있어요!"
+    maxlength="200"
+    oninput="document.getElementById('memoCount').textContent = this.value.length + '/200'"
+  ></textarea>
+  <div class="memo-count" id="memoCount">0/200</div>
+</div>
+
+<script>
+// ─── 설정 ──────────────────────────────────────────────────────────────────────
+const WORKER_URL = localStorage.getItem('damdam_worker_url') || '';
+const SECRET_KEY = localStorage.getItem('damdam_secret_key') || '';
+
+let shareData   = null;
+let sharedFiles = [];
+let selectedFolder = '';
+
+// ─── 초기화 ────────────────────────────────────────────────────────────────────
+async function init() {
+  if (!WORKER_URL || !SECRET_KEY) {
+    showToast('설정이 필요해요. 메인 화면에서 먼저 설정해주세요.');
+    setTimeout(() => location.href = 'index.html', 2000);
+    return;
+  }
+
+  await loadShareData();
+  await loadFolders();
+}
+
+// ─── SW 캐시에서 공유 데이터 읽기 ──────────────────────────────────────────────
+async function loadShareData() {
+  try {
+    const cache = await caches.open('damdam-share-data');
+    const res   = await cache.match('pending');
+    if (!res) {
+      // URL 파라미터로도 시도 (fallback)
+      const p = new URLSearchParams(location.search);
+      if (p.get('url') || p.get('text')) {
+        shareData = {
+          type:  p.get('url') ? 'link' : 'memo',
+          title: p.get('title') || '',
+          url:   p.get('url')   || '',
+          text:  p.get('text')  || ''
+        };
+      }
+    } else {
+      shareData = await res.json();
+      await cache.delete('pending');
+    }
+  } catch (e) {
+    console.error('공유 데이터 읽기 실패:', e);
+  }
+
+  if (!shareData) return;
+
+  // 이미지 파일 읽기
+  if (shareData.type === 'image' && shareData.fileCount > 0) {
+    try {
+      const fileCache = await caches.open('damdam-share-files');
+      for (let i = 0; i < shareData.fileCount; i++) {
+        const fileRes = await fileCache.match(`file-${i}`);
+        if (fileRes) {
+          const blob     = await fileRes.blob();
+          const fileName = decodeURIComponent(fileRes.headers.get('X-File-Name') || `image_${i}.jpg`);
+          sharedFiles.push(new File([blob], fileName, { type: fileRes.headers.get('Content-Type') || 'image/jpeg' }));
+        }
+      }
+      // 캐시 정리
+      const keys = await fileCache.keys();
+      keys.forEach(k => fileCache.delete(k));
+    } catch (e) {}
+  }
+
+  renderPreview();
+}
+
+// ─── 미리보기 렌더링 ────────────────────────────────────────────────────────────
+function renderPreview() {
+  const area = document.getElementById('previewArea');
+  if (!shareData) return;
+
+  if (shareData.type === 'image' && sharedFiles.length > 0) {
+    const grid = document.createElement('div');
+    grid.className = 'preview-thumb-grid';
+    sharedFiles.forEach(file => {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.alt = file.name;
+      grid.appendChild(img);
+    });
+    area.appendChild(grid);
+
+    if (sharedFiles.length > 1) {
+      const badge = document.createElement('div');
+      badge.style.cssText = 'font-size:13px;color:#888;margin-bottom:16px;';
+      badge.textContent = `이미지 ${sharedFiles.length}개`;
+      area.appendChild(badge);
+    }
+
+  } else if (shareData.type === 'link') {
+    const div = document.createElement('div');
+    div.className = 'preview';
+
+    let domain = '';
+    try { domain = new URL(shareData.url).hostname; } catch (_) {}
+
+    div.innerHTML = `
+      <div class="preview-icon">🔗</div>
+      <div class="preview-info">
+        <div class="preview-badge">🔗 링크</div>
+        <div class="preview-title">${escHtml(shareData.title || shareData.url)}</div>
+        <div class="preview-sub">${escHtml(domain)}</div>
+      </div>
+    `;
+    area.appendChild(div);
+
+  } else if (shareData.type === 'memo') {
+    const div = document.createElement('div');
+    div.className = 'preview';
+    div.innerHTML = `
+      <div class="preview-icon">📝</div>
+      <div class="preview-info">
+        <div class="preview-badge">📝 메모</div>
+        <div class="preview-title">${escHtml(shareData.text || shareData.title || '텍스트')}</div>
+      </div>
+    `;
+    area.appendChild(div);
+    // 메모 타입은 메모 입력란에 미리 채워두기
+    document.getElementById('memoInput').value = shareData.text || '';
+    document.getElementById('memoCount').textContent = (shareData.text || '').length + '/200';
+  }
+}
+
+// ─── 폴더 목록 로드 ────────────────────────────────────────────────────────────
+async function loadFolders() {
+  const grid = document.getElementById('folderGrid');
+  try {
+    const res  = await fetch(`${WORKER_URL}/folders`, {
+      headers: { 'X-Secret-Key': SECRET_KEY }
+    });
+    const data = await res.json();
+    const folders = data.folders || [];
+
+    grid.innerHTML = '';
+    folders.forEach(name => {
+      const btn = document.createElement('button');
+      btn.className   = 'folder-btn';
+      btn.textContent = name;
+      btn.onclick     = () => selectFolder(name, btn);
+      grid.appendChild(btn);
+    });
+
+    // 폴더 추가 버튼
+    const addBtn = document.createElement('button');
+    addBtn.className   = 'folder-btn';
+    addBtn.textContent = '+ 폴더 추가';
+    addBtn.style.color = '#CCC';
+    addBtn.onclick     = () => addFolder();
+    grid.appendChild(addBtn);
+
+  } catch (e) {
+    grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢</div>';
+  }
+}
+
+function selectFolder(name, btn) {
+  selectedFolder = name;
+  document.querySelectorAll('.folder-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('btnConfirm').disabled = false;
+}
+
+async function addFolder() {
+  const name = prompt('새 폴더 이름을 입력하세요');
+  if (!name?.trim()) return;
+  // Notion DB에 직접 select 옵션 추가는 API 미지원 → 일단 선택만 허용 (저장 시 자동 생성)
+  const grid  = document.getElementById('folderGrid');
+  const addBt = grid.lastElementChild;
+  const btn   = document.createElement('button');
+  btn.className   = 'folder-btn';
+  btn.textContent = name.trim();
+  btn.onclick     = () => selectFolder(name.trim(), btn);
+  grid.insertBefore(btn, addBt);
+  selectFolder(name.trim(), btn);
+}
+
+// ─── 저장 ──────────────────────────────────────────────────────────────────────
+async function confirm() {
+  if (!selectedFolder) return showToast('폴더를 선택해주세요');
+  if (!shareData)      return;
+
+  const memo    = document.getElementById('memoInput').value.trim();
+  const overlay = document.getElementById('savingOverlay');
+  overlay.classList.add('show');
+  document.getElementById('btnConfirm').disabled = true;
+
+  try {
+    if (shareData.type === 'image') {
+      const fd = new FormData();
+      sharedFiles.forEach(f => fd.append('images', f));
+      fd.append('folder', selectedFolder);
+      if (memo) fd.append('memo', memo);
+
+      const res = await fetch(`${WORKER_URL}/save-images`, {
+        method: 'POST',
+        headers: { 'X-Secret-Key': SECRET_KEY },
+        body: fd
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || '저장 실패');
+
+    } else if (shareData.type === 'link') {
+      const res = await fetch(`${WORKER_URL}/save-link`, {
+        method: 'POST',
+        headers: { 'X-Secret-Key': SECRET_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title:  shareData.title || shareData.url,
+          url:    shareData.url,
+          folder: selectedFolder,
+          memo
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || '저장 실패');
+
+    } else {
+      // memo type → link 없이 저장
+      const res = await fetch(`${WORKER_URL}/save-link`, {
+        method: 'POST',
+        headers: { 'X-Secret-Key': SECRET_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title:  shareData.text || shareData.title || '메모',
+          url:    '',
+          folder: selectedFolder,
+          memo:   shareData.text || memo
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || '저장 실패');
+    }
+
+    showToast('담았어요 🌸');
+    setTimeout(() => {
+      try { window.close(); } catch (_) {}
+      location.href = 'index.html';
+    }, 800);
+
+  } catch (e) {
+    overlay.classList.remove('show');
+    document.getElementById('btnConfirm').disabled = false;
+    showToast('저장 실패: ' + e.message);
+  }
+}
+
+function cancel() {
+  try { window.close(); } catch (_) {}
+  history.back();
+}
+
+// ─── 유틸 ──────────────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.className   = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
+
+// ─── SW 등록 후 초기화 ──────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(() => init()).catch(() => init());
+} else {
+  init();
+}
+</script>
+</body>
+</html>
