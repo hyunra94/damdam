@@ -118,7 +118,33 @@
     .modal-save:active { background:var(--pink-deep); }
     .modal-close { position:absolute; top:16px; right:16px; background:none; border:none; cursor:pointer; font-size:22px; color:var(--text-sub); }
 
-    /* ── 토스트 ── */
+    /* ── FAB ── */
+    .fab { position:fixed; bottom:calc(24px + env(safe-area-inset-bottom)); right:20px; width:52px; height:52px; border-radius:50%; background:var(--pink); border:none; cursor:pointer; box-shadow:0 4px 16px rgba(255,143,171,0.45); display:flex; align-items:center; justify-content:center; font-size:26px; color:white; z-index:15; transition:transform .15s,background .15s; }
+    .fab:active { transform:scale(.92); background:var(--pink-deep); }
+
+    /* ── 직접 추가 모달 ── */
+    .add-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:50; align-items:flex-end; justify-content:center; }
+    .add-modal-overlay.show { display:flex; }
+    .add-modal { width:100%; max-width:480px; background:var(--white); border-radius:24px 24px 0 0; padding:20px 20px calc(24px + env(safe-area-inset-bottom)); animation:slideUp .25s ease; position:relative; max-height:85dvh; overflow-y:auto; }
+    .add-modal-title { font-size:18px; font-weight:700; color:var(--text); margin-bottom:16px; }
+    .type-tabs { display:flex; gap:8px; margin-bottom:18px; }
+    .type-tab { flex:1; padding:9px; border-radius:12px; border:1.5px solid #EAEAEA; background:var(--white); font-family:inherit; font-size:13px; font-weight:500; color:var(--text-sub); cursor:pointer; transition:all .15s; text-align:center; }
+    .type-tab.active { background:var(--pink-pale); border-color:var(--pink); color:var(--pink-deep); font-weight:700; }
+    .add-field-label { font-size:13px; font-weight:700; color:var(--text-sub); margin-bottom:6px; margin-top:14px; }
+    .add-field-input { width:100%; border:1.5px solid #EAEAEA; border-radius:12px; padding:11px 14px; font-family:inherit; font-size:14px; color:var(--text); outline:none; transition:border-color .15s; }
+    .add-field-input:focus { border-color:var(--pink); }
+    textarea.add-field-input { resize:none; line-height:1.5; }
+    .add-folder-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+    .add-folder-btn { padding:7px 14px; border-radius:20px; font-size:13px; font-weight:500; border:1.5px solid #EAEAEA; background:var(--white); color:var(--text-sub); cursor:pointer; font-family:inherit; transition:all .15s; }
+    .add-folder-btn.active { background:var(--pink-pale); border-color:var(--pink); color:var(--pink-deep); font-weight:700; }
+    .add-file-label { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:16px; border:2px dashed var(--pink-light); border-radius:12px; cursor:pointer; color:var(--pink); font-size:14px; font-weight:500; margin-top:6px; transition:background .15s; }
+    .add-file-label:active { background:var(--pink-pale); }
+    .add-file-preview { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .add-file-preview img { width:64px; height:64px; object-fit:cover; border-radius:10px; }
+    .add-submit { width:100%; padding:14px; background:var(--pink); border:none; border-radius:14px; font-family:inherit; font-size:16px; font-weight:700; color:white; cursor:pointer; margin-top:20px; }
+    .add-submit:active { background:var(--pink-deep); }
+    .add-submit:disabled { background:#CCC; cursor:not-allowed; }
+    .add-modal-close { position:absolute; top:16px; right:16px; background:none; border:none; cursor:pointer; font-size:22px; color:var(--text-sub); }
     .toast { position:fixed; bottom:calc(30px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.75); color:white; padding:10px 20px; border-radius:20px; font-size:14px; white-space:nowrap; animation:fadeInOut 2.5s ease forwards; z-index:999; }
     @keyframes fadeInOut { 0%{opacity:0;transform:translateX(-50%) translateY(10px)} 15%{opacity:1;transform:translateX(-50%) translateY(0)} 80%{opacity:1} 100%{opacity:0} }
   </style>
@@ -176,6 +202,56 @@
     <div class="viewer-track" id="viewerTrack"></div>
   </div>
   <div class="viewer-dots" id="viewerDots"></div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openAddModal()">＋</button>
+
+<!-- 직접 추가 모달 -->
+<div class="add-modal-overlay" id="addModalOverlay" onclick="closeAddModal(event)">
+  <div class="add-modal">
+    <button class="add-modal-close" onclick="closeAddModalBtn()">✕</button>
+    <div class="add-modal-title">✚ 직접 추가</div>
+    <div class="type-tabs">
+      <button class="type-tab active" onclick="selectAddType('link', this)">🔗 링크</button>
+      <button class="type-tab" onclick="selectAddType('image', this)">🖼 이미지</button>
+      <button class="type-tab" onclick="selectAddType('memo', this)">📝 메모</button>
+    </div>
+
+    <!-- 링크 -->
+    <div id="addTypeLink">
+      <div class="add-field-label">URL</div>
+      <input class="add-field-input" id="addUrl" type="url" placeholder="https://...">
+    </div>
+
+    <!-- 이미지 -->
+    <div id="addTypeImage" style="display:none">
+      <div class="add-field-label">이미지 선택</div>
+      <label class="add-file-label">
+        <span>📎</span><span>파일 선택</span>
+        <input type="file" accept="image/*" multiple style="display:none" id="addFileInput" onchange="previewFiles(this)">
+      </label>
+      <div class="add-file-preview" id="addFilePreview"></div>
+    </div>
+
+    <!-- 메모 -->
+    <div id="addTypeMemo" style="display:none">
+      <div class="add-field-label">내용</div>
+      <textarea class="add-field-input" id="addMemoText" rows="4" placeholder="메모 내용을 입력하세요"></textarea>
+    </div>
+
+    <!-- 공통: 폴더 -->
+    <div class="add-field-label">폴더</div>
+    <div class="add-folder-grid" id="addFolderGrid"></div>
+
+    <!-- 공통: 메모 (링크/이미지용) -->
+    <div id="addMemoWrap">
+      <div class="add-field-label">메모 <span style="font-weight:400;color:#bbb">(선택)</span></div>
+      <input class="add-field-input" id="addMemo" placeholder="키워드로 메모해두면 쉽게 찾아볼 수 있어요!">
+    </div>
+
+    <button class="add-submit" id="addSubmitBtn" onclick="submitAdd()">저장</button>
+  </div>
 </div>
 
 <!-- 설정 모달 -->
@@ -300,12 +376,10 @@ function buildCard(item, idx) {
     img.src = src; img.alt = '';
     img.onerror = () => img.style.display = 'none';
     card.appendChild(img);
-    if (item.folder) {
-      const f = document.createElement('div');
-      f.className = 'card-img-footer';
-      f.innerHTML = `<div class="card-folder"># ${escHtml(item.folder)}</div>`;
-      card.appendChild(f);
-    }
+    const f = document.createElement('div');
+    f.className = 'card-img-footer';
+    f.innerHTML = `<div class="card-type">🖼 이미지</div>${item.folder ? `<div class="card-folder"># ${escHtml(item.folder)}</div>` : ''}`;
+    card.appendChild(f);
     card.onclick = () => {
       if (editMode) return;
       const imgs = items.filter(i => i.type === 'image');
@@ -430,6 +504,98 @@ function showToast(msg) {
   el.className = 'toast'; el.textContent = msg;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2700);
+}
+
+/* ── 직접 추가 ── */
+let addType = 'link', addFolder = '';
+
+function openAddModal() {
+  addType = 'link'; addFolder = '';
+  document.getElementById('addUrl').value = '';
+  document.getElementById('addMemo').value = '';
+  document.getElementById('addMemoText').value = '';
+  document.getElementById('addFilePreview').innerHTML = '';
+  document.getElementById('addFileInput').value = '';
+  renderAddFolders();
+  document.querySelectorAll('.type-tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  document.getElementById('addTypeLink').style.display = '';
+  document.getElementById('addTypeImage').style.display = 'none';
+  document.getElementById('addTypeMemo').style.display = 'none';
+  document.getElementById('addMemoWrap').style.display = '';
+  document.getElementById('addModalOverlay').classList.add('show');
+}
+function closeAddModal(e) { if (e.target.id === 'addModalOverlay') closeAddModalBtn(); }
+function closeAddModalBtn() { document.getElementById('addModalOverlay').classList.remove('show'); }
+
+function selectAddType(type, btn) {
+  addType = type;
+  document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('addTypeLink').style.display  = type === 'link'  ? '' : 'none';
+  document.getElementById('addTypeImage').style.display = type === 'image' ? '' : 'none';
+  document.getElementById('addTypeMemo').style.display  = type === 'memo'  ? '' : 'none';
+  document.getElementById('addMemoWrap').style.display  = type === 'memo'  ? 'none' : '';
+}
+
+function renderAddFolders() {
+  const grid = document.getElementById('addFolderGrid');
+  grid.innerHTML = '';
+  ['전체 없음', ...folders].forEach((name, i) => {
+    if (name === '전체 없음' && i === 0) return;
+    const btn = document.createElement('button');
+    btn.className = 'add-folder-btn';
+    btn.textContent = name;
+    btn.onclick = () => {
+      addFolder = name;
+      document.querySelectorAll('.add-folder-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function previewFiles(input) {
+  const preview = document.getElementById('addFilePreview');
+  preview.innerHTML = '';
+  Array.from(input.files).forEach(file => {
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    preview.appendChild(img);
+  });
+}
+
+async function submitAdd() {
+  const btn = document.getElementById('addSubmitBtn');
+  btn.disabled = true; btn.textContent = '저장 중...';
+  try {
+    if (addType === 'link') {
+      const url = document.getElementById('addUrl').value.trim();
+      if (!url) { showToast('URL을 입력해주세요'); return; }
+      await apiFetch('/save-link', 'POST', { url, folder: addFolder, memo: document.getElementById('addMemo').value.trim() });
+
+    } else if (addType === 'image') {
+      const files = document.getElementById('addFileInput').files;
+      if (!files.length) { showToast('이미지를 선택해주세요'); return; }
+      const fd = new FormData();
+      Array.from(files).forEach(f => fd.append('images', f));
+      fd.append('folder', addFolder);
+      fd.append('memo', document.getElementById('addMemo').value.trim());
+      await fetch(`${WORKER_URL}/save-images`, { method:'POST', headers:{'X-Secret-Key':SECRET_KEY}, body:fd });
+
+    } else {
+      const text = document.getElementById('addMemoText').value.trim();
+      if (!text) { showToast('내용을 입력해주세요'); return; }
+      await apiFetch('/save-link', 'POST', { title: text, url: '', folder: addFolder, memo: text });
+    }
+
+    showToast('담았어요 🌸');
+    closeAddModalBtn();
+    await loadItems(currentFolder);
+  } catch (e) {
+    showToast('저장 실패: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '저장';
+  }
 }
 
 init();
