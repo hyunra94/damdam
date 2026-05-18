@@ -244,7 +244,7 @@
 
   <div class="toolbar">
     <button class="btn-cancel" onclick="cancel()">취소</button>
-    <button class="btn-confirm" id="btnConfirm" onclick="confirm()" disabled>확인</button>
+    <button class="btn-confirm" id="btnConfirm" onclick="saveShare()" disabled>확인</button>
   </div>
 
   <!-- 미리보기 -->
@@ -393,15 +393,24 @@ function renderPreview() {
 // ─── 폴더 목록 로드 ────────────────────────────────────────────────────────────
 function loadFolders() {
   const grid = document.getElementById('folderGrid');
+  grid.innerHTML = '<div class="loading-folders">폴더 불러오는 중…</div>';
+
   const xhr = new XMLHttpRequest();
-  xhr.open('GET', WORKER_URL + '/folders', true);
+  xhr.open('GET', WORKER_URL.replace(/\/$/, '') + '/folders', true);
   xhr.setRequestHeader('X-Secret-Key', SECRET_KEY);
-  xhr.timeout = 10000;
+  xhr.timeout = 15000;
+
   xhr.onload = function() {
     try {
-      const data = JSON.parse(xhr.responseText);
-      const folders = data.folders || [];
+      const data = JSON.parse(xhr.responseText || '{}');
+
+      if (xhr.status < 200 || xhr.status >= 300) {
+        throw new Error(data.error || ('HTTP ' + xhr.status));
+      }
+
+      const folders = Array.isArray(data.folders) ? data.folders : [];
       grid.innerHTML = '';
+
       folders.forEach(function(name) {
         const btn = document.createElement('button');
         btn.className = 'folder-btn';
@@ -409,19 +418,32 @@ function loadFolders() {
         btn.onclick = function() { selectFolder(name, btn); };
         grid.appendChild(btn);
       });
+
       const addBtn = document.createElement('button');
       addBtn.className = 'folder-btn';
       addBtn.textContent = '+ 폴더 추가';
       addBtn.style.color = '#CCC';
       addBtn.onclick = function() { addFolder(); };
       grid.appendChild(addBtn);
+
+      // 기존 옵션이 하나도 없어도 직접 추가해서 저장할 수 있게 둠
+      if (!folders.length) {
+        showToast('폴더 옵션이 없어요. 새 폴더를 추가해 저장할 수 있어요.');
+      }
     } catch(e) {
-      grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢</div>';
+      console.error('폴더 불러오기 실패:', e, xhr.status, xhr.responseText);
+      grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢<br><small>' + escHtml(e.message || '') + '</small></div>';
     }
   };
-  xhr.onerror = xhr.ontimeout = function() {
-    grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢</div>';
+
+  xhr.onerror = function() {
+    grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢<br><small>CORS 또는 네트워크 오류</small></div>';
   };
+
+  xhr.ontimeout = function() {
+    grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢<br><small>응답 시간 초과</small></div>';
+  };
+
   xhr.send();
 }
 
@@ -440,17 +462,32 @@ function selectFolder(name, btn) {
 async function addFolder() {
   const name = prompt('새 폴더 이름을 입력하세요');
   if (!name?.trim()) return;
-  // Notion DB에 직접 select 옵션 추가는 API 미지원 → 일단 선택만 허용 (저장 시 자동 생성)
+
+  // multi_select는 기존 옵션에 없는 값도 Notion API 저장 시 자동 추가됨
+  const folderName = name.trim();
+  if (selectedFolders.indexOf(folderName) < 0) selectedFolders.push(folderName);
+
   const grid  = document.getElementById('folderGrid');
   const addBt = grid.lastElementChild;
   const btn   = document.createElement('button');
-  btn.className   = 'folder-btn';
-  btn.textContent = name.trim();
-  btn.onclick     = () => selectFolder(name.trim(), btn);
+  btn.className   = 'folder-btn selected';
+  btn.textContent = folderName;
+  btn.onclick     = () => selectFolder(folderName, btn);
   grid.insertBefore(btn, addBt);
-  selectFolder(name.trim(), btn);
+
+  document.getElementById('btnConfirm').disabled = selectedFolders.length === 0;
 }
-  if (!shareData)      return;
+
+async function saveShare() {
+  if (!shareData) {
+    showToast('공유 데이터가 없어요. 다시 공유해주세요.');
+    return;
+  }
+
+  if (selectedFolders.length === 0) {
+    showToast('폴더를 선택해주세요.');
+    return;
+  }
 
   const memo    = document.getElementById('memoInput').value.trim();
   const overlay = document.getElementById('savingOverlay');
@@ -464,40 +501,63 @@ async function addFolder() {
       location.href = 'index.html';
     }, 800);
   }
+
   function onError(msg) {
     overlay.classList.remove('show');
-    document.getElementById('btnConfirm').disabled = false;
-    showToast('저장 실패: ' + (msg || ''));
+    document.getElementById('btnConfirm').disabled = selectedFolders.length === 0;
+    showToast('저장 실패: ' + (msg || '알 수 없는 오류'));
   }
 
   if (shareData.type === 'image') {
-    var fd = new FormData();
+    const fd = new FormData();
     sharedFiles.forEach(function(f) { fd.append('images', f); });
     selectedFolders.forEach(function(f) { fd.append('folders[]', f); });
     if (memo) fd.append('memo', memo);
-    var xhr = new XMLHttpRequest();
+
+    const xhr = new XMLHttpRequest();
     xhr.open('POST', WORKER_URL + '/save-images', true);
     xhr.setRequestHeader('X-Secret-Key', SECRET_KEY);
     xhr.timeout = 30000;
     xhr.onload = function() {
-      try { var d = JSON.parse(xhr.responseText); d.success ? onSuccess() : onError(d.error); }
-      catch(e) { onError(e.message); }
+      try {
+        const d = JSON.parse(xhr.responseText || '{}');
+        if (xhr.status >= 200 && xhr.status < 300 && d.success) onSuccess();
+        else onError(d.error || ('HTTP ' + xhr.status));
+      } catch(e) {
+        onError(e.message);
+      }
     };
     xhr.onerror = xhr.ontimeout = function() { onError('네트워크 오류'); };
     xhr.send(fd);
 
   } else {
-    var body = shareData.type === 'link'
-      ? { title: shareData.title || shareData.url, url: shareData.url, folders: selectedFolders, memo: memo }
-      : { title: shareData.text || shareData.title || '메모', url: '', folders: selectedFolders, memo: shareData.text || memo };
-    var xhr2 = new XMLHttpRequest();
+    const body = shareData.type === 'link'
+      ? {
+          title: shareData.title || shareData.url,
+          url: shareData.url,
+          folders: selectedFolders,
+          memo: memo
+        }
+      : {
+          title: shareData.text || shareData.title || '메모',
+          url: '',
+          folders: selectedFolders,
+          memo: shareData.text || memo
+        };
+
+    const xhr2 = new XMLHttpRequest();
     xhr2.open('POST', WORKER_URL + '/save-link', true);
     xhr2.setRequestHeader('X-Secret-Key', SECRET_KEY);
     xhr2.setRequestHeader('Content-Type', 'application/json');
     xhr2.timeout = 10000;
     xhr2.onload = function() {
-      try { var d = JSON.parse(xhr2.responseText); d.success ? onSuccess() : onError(d.error); }
-      catch(e) { onError(e.message); }
+      try {
+        const d = JSON.parse(xhr2.responseText || '{}');
+        if (xhr2.status >= 200 && xhr2.status < 300 && d.success) onSuccess();
+        else onError(d.error || ('HTTP ' + xhr2.status));
+      } catch(e) {
+        onError(e.message);
+      }
     };
     xhr2.onerror = xhr2.ontimeout = function() { onError('네트워크 오류'); };
     xhr2.send(JSON.stringify(body));
