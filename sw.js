@@ -1,49 +1,22 @@
-// 담담 - Service Worker
+// 담담 - Service Worker (최소화 버전)
+// 공유 수신만 처리, 나머지는 브라우저에 완전히 위임
 
 const SHARE_DATA_CACHE  = 'damdam-share-data';
 const SHARE_FILES_CACHE = 'damdam-share-files';
-const APP_CACHE         = 'damdam-app-v3'; // 버전 올려서 강제 갱신
 
 self.addEventListener('install', () => self.skipWaiting());
-
-self.addEventListener('activate', event => {
-  // 이전 캐시 삭제
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys
-        .filter(k => k.startsWith('damdam-app-') && k !== APP_CACHE)
-        .map(k => caches.delete(k))
-      )
-    ).then(() => clients.claim())
-  );
-});
+self.addEventListener('activate', e => e.waitUntil(clients.claim()));
 
 self.addEventListener('fetch', event => {
-  const { request } = event;
-  const url = new URL(request.url);
+  const url = new URL(event.request.url);
 
-  // 외부 요청(Worker API 등)은 SW에서 아예 건드리지 않음
-  if (url.origin !== self.location.origin) return;
-
-  // 공유 대상 POST 수신
-  if (url.pathname.endsWith('/share') && request.method === 'POST') {
-    event.respondWith(handleShareTarget(request, url));
-    return;
+  // 공유 수신 POST만 처리 — 그 외 모든 요청은 완전히 건드리지 않음
+  if (url.pathname.endsWith('/share') && event.request.method === 'POST') {
+    event.respondWith(handleShareTarget(event.request, url));
   }
-
-  // 앱 파일 → 네트워크 우선
-  event.respondWith(
-    fetch(request)
-      .then(res => {
-        const clone = res.clone();
-        caches.open(APP_CACHE).then(c => c.put(request, clone));
-        return res;
-      })
-      .catch(() => caches.match(request))
-  );
+  // 나머지: event.respondWith() 안 부름 → 브라우저가 직접 처리
 });
 
-// ─── 공유 수신 처리 ────────────────────────────────────────────────────────────
 async function handleShareTarget(request, url) {
   const formData = await request.formData();
 
