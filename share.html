@@ -10,8 +10,14 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#FF8FAB">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
 
     :root {
       --pink:       #FF8FAB;
@@ -35,7 +41,6 @@
       justify-content: center;
     }
 
-    /* ── 바텀시트 ── */
     .sheet {
       width: 100%;
       max-width: 480px;
@@ -44,41 +49,67 @@
       padding: 12px 20px calc(20px + env(safe-area-inset-bottom));
       animation: slideUp .28s cubic-bezier(.25,.8,.25,1);
     }
+
     @keyframes slideUp {
-      from { transform: translateY(100%); opacity: 0; }
-      to   { transform: translateY(0);   opacity: 1; }
+      from {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
 
     .handle {
-      width: 36px; height: 4px;
+      width: 36px;
+      height: 4px;
       background: #E0E0E0;
       border-radius: 2px;
       margin: 0 auto 16px;
     }
 
-    /* ── 상단 툴바 ── */
     .toolbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
     }
+
     .btn-cancel {
-      background: none; border: none; cursor: pointer;
-      font-family: inherit; font-size: 15px;
-      color: var(--text-sub); padding: 4px 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--text-sub);
+      padding: 4px 0;
     }
+
     .btn-confirm {
-      background: var(--pink); border: none; cursor: pointer;
-      font-family: inherit; font-size: 15px; font-weight: 700;
-      color: white; padding: 8px 22px;
+      background: var(--pink);
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      color: white;
+      padding: 8px 22px;
       border-radius: 20px;
       transition: background .15s, transform .1s;
     }
-    .btn-confirm:active { transform: scale(.96); background: var(--pink-deep); }
-    .btn-confirm:disabled { background: #ccc; cursor: not-allowed; transform: none; }
 
-    /* ── 미리보기 ── */
+    .btn-confirm:active {
+      transform: scale(.96);
+      background: var(--pink-deep);
+    }
+
+    .btn-confirm:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .preview {
       background: var(--pink-pale);
       border-radius: var(--radius);
@@ -88,52 +119,73 @@
       align-items: flex-start;
       gap: 10px;
     }
-    .preview-thumb {
-      width: 52px; height: 52px;
-      border-radius: 10px;
-      object-fit: cover;
-      flex-shrink: 0;
-      background: var(--pink-light);
-    }
+
     .preview-thumb-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, 52px);
       gap: 6px;
       margin-bottom: 20px;
     }
+
     .preview-thumb-grid img {
-      width: 52px; height: 52px;
+      width: 52px;
+      height: 52px;
       border-radius: 10px;
       object-fit: cover;
       background: var(--pink-light);
     }
+
     .preview-icon {
-      width: 52px; height: 52px;
+      width: 52px;
+      height: 52px;
       border-radius: 10px;
       background: var(--pink-light);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; flex-shrink: 0;
-    }
-    .preview-info { flex: 1; min-width: 0; }
-    .preview-title {
-      font-size: 14px; font-weight: 500; color: var(--text);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      margin-bottom: 2px;
-    }
-    .preview-sub {
-      font-size: 12px; color: var(--text-sub);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .preview-badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 11px; font-weight: 600; color: var(--pink-deep);
-      background: var(--pink-light);
-      padding: 2px 8px; border-radius: 10px; margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
     }
 
-    /* ── 폴더 섹션 ── */
+    .preview-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .preview-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+
+    .preview-sub {
+      font-size: 12px;
+      color: var(--text-sub);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preview-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--pink-deep);
+      background: var(--pink-light);
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-bottom: 4px;
+    }
+
     .section-label {
-      font-size: 15px; font-weight: 700;
+      font-size: 15px;
+      font-weight: 700;
       color: var(--pink-deep);
       margin-bottom: 12px;
     }
@@ -144,6 +196,7 @@
       gap: 8px;
       margin-bottom: 20px;
     }
+
     .folder-btn {
       padding: 10px 6px;
       border: 1.5px solid #EAEAEA;
@@ -151,7 +204,8 @@
       background: var(--white);
       cursor: pointer;
       font-family: inherit;
-      font-size: 13px; font-weight: 500;
+      font-size: 13px;
+      font-weight: 500;
       color: var(--text);
       transition: all .15s;
       text-align: center;
@@ -159,7 +213,11 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .folder-btn:active { transform: scale(.96); }
+
+    .folder-btn:active {
+      transform: scale(.96);
+    }
+
     .folder-btn.selected {
       border-color: var(--pink);
       background: var(--pink-pale);
@@ -167,71 +225,125 @@
       font-weight: 700;
     }
 
-    /* ── 메모 ── */
     .memo-label {
-      font-size: 15px; font-weight: 700;
-      color: var(--text); margin-bottom: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
     }
+
     .memo-input {
-      width: 100%; resize: none;
+      width: 100%;
+      resize: none;
       border: 1.5px solid #EAEAEA;
       border-radius: 12px;
       padding: 12px 14px;
       font-family: inherit;
-      font-size: 14px; color: var(--text);
+      font-size: 14px;
+      color: var(--text);
       background: var(--white);
       outline: none;
       transition: border-color .15s;
       line-height: 1.5;
     }
-    .memo-input:focus { border-color: var(--pink); }
-    .memo-input::placeholder { color: #C0C0C0; }
+
+    .memo-input:focus {
+      border-color: var(--pink);
+    }
+
+    .memo-input::placeholder {
+      color: #C0C0C0;
+    }
+
     .memo-count {
       text-align: right;
-      font-size: 11px; color: var(--text-sub);
+      font-size: 11px;
+      color: var(--text-sub);
       margin-top: 4px;
     }
 
-    /* ── 로딩/에러 ── */
     .loading-folders {
-      text-align: center; padding: 20px 0;
-      color: var(--text-sub); font-size: 14px;
+      text-align: center;
+      padding: 20px 0;
+      color: var(--text-sub);
+      font-size: 14px;
+      grid-column: 1 / -1;
     }
+
     .toast {
-      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,0.75); color: white;
-      padding: 10px 20px; border-radius: 20px;
-      font-size: 14px; white-space: nowrap;
-      animation: fadeInOut 2s ease forwards;
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      white-space: nowrap;
+      animation: fadeInOut 2.2s ease forwards;
       z-index: 999;
+      max-width: calc(100% - 32px);
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+
     @keyframes fadeInOut {
-      0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
-      20%  { opacity: 1; transform: translateX(-50%) translateY(0); }
-      80%  { opacity: 1; }
-      100% { opacity: 0; }
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+      }
+      20% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      80% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
     }
 
     .saving-overlay {
       display: none;
-      position: fixed; inset: 0;
+      position: fixed;
+      inset: 0;
       background: rgba(255,240,245,0.85);
-      align-items: center; justify-content: center;
-      flex-direction: column; gap: 12px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
       z-index: 100;
     }
-    .saving-overlay.show { display: flex; }
+
+    .saving-overlay.show {
+      display: flex;
+    }
+
     .spinner {
-      width: 36px; height: 36px;
+      width: 36px;
+      height: 36px;
       border: 3px solid var(--pink-light);
       border-top-color: var(--pink);
       border-radius: 50%;
       animation: spin .7s linear infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .saving-text { font-size: 15px; font-weight: 500; color: var(--pink-deep); }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .saving-text {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--pink-deep);
+    }
   </style>
 </head>
+
 <body>
 
 <div class="saving-overlay" id="savingOverlay">
@@ -247,18 +359,18 @@
     <button class="btn-confirm" id="btnConfirm" onclick="saveShare()" disabled>확인</button>
   </div>
 
-  <!-- 미리보기 -->
   <div id="previewArea"></div>
 
-  <!-- 폴더 선택 -->
   <div class="section-label">어떤 폴더에 담을까요?</div>
   <div class="folder-grid" id="folderGrid">
     <div class="loading-folders">폴더 불러오는 중…</div>
   </div>
 
-  <!-- 메모 -->
   <div class="memo-label">메모</div>
-  <textarea class="memo-input" id="memoInput" rows="3"
+  <textarea
+    class="memo-input"
+    id="memoInput"
+    rows="3"
     placeholder="키워드로 메모해두면 쉽게 찾아볼 수 있어요!"
     maxlength="200"
     oninput="document.getElementById('memoCount').textContent = this.value.length + '/200'"
@@ -267,38 +379,39 @@
 </div>
 
 <script>
-// ─── 설정 ──────────────────────────────────────────────────────────────────────
 const WORKER_URL = localStorage.getItem('damdam_worker_url') || '';
 const SECRET_KEY = localStorage.getItem('damdam_secret_key') || '';
 
-let shareData   = null;
+let shareData = null;
 let sharedFiles = [];
 let selectedFolders = [];
 
-// ─── 초기화 ────────────────────────────────────────────────────────────────────
 function init() {
   if (!WORKER_URL || !SECRET_KEY) {
     showToast('설정이 필요해요. 메인 화면에서 먼저 설정해주세요.');
-    setTimeout(function() { location.href = 'index.html'; }, 2000);
+    setTimeout(function() {
+      location.href = 'index.html';
+    }, 2000);
     return;
   }
+
   loadShareData();
 }
 
-// ─── SW 캐시에서 공유 데이터 읽기 ──────────────────────────────────────────────
 async function loadShareData() {
   try {
     const cache = await caches.open('damdam-share-data');
-    const res   = await cache.match('pending');
+    const res = await cache.match('pending');
+
     if (!res) {
-      // URL 파라미터로도 시도 (fallback)
       const p = new URLSearchParams(location.search);
+
       if (p.get('url') || p.get('text')) {
         shareData = {
-          type:  p.get('url') ? 'link' : 'memo',
+          type: p.get('url') ? 'link' : 'memo',
           title: p.get('title') || '',
-          url:   p.get('url')   || '',
-          text:  p.get('text')  || ''
+          url: p.get('url') || '',
+          text: p.get('text') || ''
         };
       }
     } else {
@@ -309,44 +422,65 @@ async function loadShareData() {
     console.error('공유 데이터 읽기 실패:', e);
   }
 
-  if (!shareData) return;
+  if (!shareData) {
+    showToast('공유 데이터를 찾지 못했어요.');
+    setTimeout(function() {
+      location.href = 'index.html';
+    }, 1200);
+    return;
+  }
 
-  // 이미지 파일 읽기
   if (shareData.type === 'image' && shareData.fileCount > 0) {
     try {
       const fileCache = await caches.open('damdam-share-files');
+
       for (let i = 0; i < shareData.fileCount; i++) {
         const fileRes = await fileCache.match(`file-${i}`);
+
         if (fileRes) {
-          const blob     = await fileRes.blob();
-          const fileName = decodeURIComponent(fileRes.headers.get('X-File-Name') || `image_${i}.jpg`);
-          sharedFiles.push(new File([blob], fileName, { type: fileRes.headers.get('Content-Type') || 'image/jpeg' }));
+          const blob = await fileRes.blob();
+          const fileName = decodeURIComponent(
+            fileRes.headers.get('X-File-Name') || `image_${i}.jpg`
+          );
+
+          sharedFiles.push(
+            new File(
+              [blob],
+              fileName,
+              { type: fileRes.headers.get('Content-Type') || 'image/jpeg' }
+            )
+          );
         }
       }
-      // 캐시 정리
+
       const keys = await fileCache.keys();
       keys.forEach(k => fileCache.delete(k));
-    } catch (e) {}
+    } catch (e) {
+      console.error('이미지 파일 읽기 실패:', e);
+    }
   }
 
   renderPreview();
   loadFolders();
 }
 
-// ─── 미리보기 렌더링 ────────────────────────────────────────────────────────────
 function renderPreview() {
   const area = document.getElementById('previewArea');
+  area.innerHTML = '';
+
   if (!shareData) return;
 
   if (shareData.type === 'image' && sharedFiles.length > 0) {
     const grid = document.createElement('div');
     grid.className = 'preview-thumb-grid';
+
     sharedFiles.forEach(file => {
       const img = document.createElement('img');
       img.src = URL.createObjectURL(file);
       img.alt = file.name;
       grid.appendChild(img);
     });
+
     area.appendChild(grid);
 
     if (sharedFiles.length > 1) {
@@ -361,7 +495,10 @@ function renderPreview() {
     div.className = 'preview';
 
     let domain = '';
-    try { domain = new URL(shareData.url).hostname; } catch (_) {}
+
+    try {
+      domain = new URL(shareData.url).hostname;
+    } catch (_) {}
 
     div.innerHTML = `
       <div class="preview-icon">🔗</div>
@@ -371,11 +508,13 @@ function renderPreview() {
         <div class="preview-sub">${escHtml(domain)}</div>
       </div>
     `;
+
     area.appendChild(div);
 
-  } else if (shareData.type === 'memo') {
+  } else {
     const div = document.createElement('div');
     div.className = 'preview';
+
     div.innerHTML = `
       <div class="preview-icon">📝</div>
       <div class="preview-info">
@@ -383,39 +522,41 @@ function renderPreview() {
         <div class="preview-title">${escHtml(shareData.text || shareData.title || '텍스트')}</div>
       </div>
     `;
+
     area.appendChild(div);
-    // 메모 타입은 메모 입력란에 미리 채워두기
+
     document.getElementById('memoInput').value = shareData.text || '';
     document.getElementById('memoCount').textContent = (shareData.text || '').length + '/200';
   }
 }
 
-// ─── 폴더 목록 로드 ────────────────────────────────────────────────────────────
 function loadFolders() {
   const grid = document.getElementById('folderGrid');
-  grid.innerHTML = '<div class="loading-folders">폴더 불러오는 중…</div>';
 
   const xhr = new XMLHttpRequest();
   xhr.open('GET', WORKER_URL.replace(/\/$/, '') + '/folders', true);
   xhr.setRequestHeader('X-Secret-Key', SECRET_KEY);
-  xhr.timeout = 15000;
+  xhr.timeout = 10000;
 
   xhr.onload = function() {
     try {
-      const data = JSON.parse(xhr.responseText || '{}');
+      const data = JSON.parse(xhr.responseText);
 
       if (xhr.status < 200 || xhr.status >= 300) {
-        throw new Error(data.error || ('HTTP ' + xhr.status));
+        throw new Error(data.error || `HTTP ${xhr.status}`);
       }
 
-      const folders = Array.isArray(data.folders) ? data.folders : [];
+      const folders = data.folders || [];
+
       grid.innerHTML = '';
 
       folders.forEach(function(name) {
         const btn = document.createElement('button');
         btn.className = 'folder-btn';
         btn.textContent = name;
-        btn.onclick = function() { selectFolder(name, btn); };
+        btn.onclick = function() {
+          selectFolder(name, btn);
+        };
         grid.appendChild(btn);
       });
 
@@ -423,25 +564,24 @@ function loadFolders() {
       addBtn.className = 'folder-btn';
       addBtn.textContent = '+ 폴더 추가';
       addBtn.style.color = '#CCC';
-      addBtn.onclick = function() { addFolder(); };
+      addBtn.onclick = function() {
+        addFolder();
+      };
+
       grid.appendChild(addBtn);
 
-      // 기존 옵션이 하나도 없어도 직접 추가해서 저장할 수 있게 둠
-      if (!folders.length) {
-        showToast('폴더 옵션이 없어요. 새 폴더를 추가해 저장할 수 있어요.');
-      }
-    } catch(e) {
-      console.error('폴더 불러오기 실패:', e, xhr.status, xhr.responseText);
-      grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢<br><small>' + escHtml(e.message || '') + '</small></div>';
+    } catch (e) {
+      console.error('폴더 불러오기 실패:', e, xhr.responseText);
+      grid.innerHTML = `<div class="loading-folders">폴더 불러오기 실패 😢<br>${escHtml(e.message || '')}</div>`;
     }
   };
 
   xhr.onerror = function() {
-    grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢<br><small>CORS 또는 네트워크 오류</small></div>';
+    grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢<br>CORS 또는 네트워크 오류</div>';
   };
 
   xhr.ontimeout = function() {
-    grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢<br><small>응답 시간 초과</small></div>';
+    grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢<br>응답 시간 초과</div>';
   };
 
   xhr.send();
@@ -449,6 +589,7 @@ function loadFolders() {
 
 function selectFolder(name, btn) {
   const idx = selectedFolders.indexOf(name);
+
   if (idx >= 0) {
     selectedFolders.splice(idx, 1);
     btn.classList.remove('selected');
@@ -456,78 +597,124 @@ function selectFolder(name, btn) {
     selectedFolders.push(name);
     btn.classList.add('selected');
   }
+
   document.getElementById('btnConfirm').disabled = selectedFolders.length === 0;
 }
 
 async function addFolder() {
   const name = prompt('새 폴더 이름을 입력하세요');
-  if (!name?.trim()) return;
 
-  // multi_select는 기존 옵션에 없는 값도 Notion API 저장 시 자동 추가됨
+  if (!name || !name.trim()) return;
+
   const folderName = name.trim();
-  if (selectedFolders.indexOf(folderName) < 0) selectedFolders.push(folderName);
+  const grid = document.getElementById('folderGrid');
+  const addBtn = grid.lastElementChild;
 
-  const grid  = document.getElementById('folderGrid');
-  const addBt = grid.lastElementChild;
-  const btn   = document.createElement('button');
-  btn.className   = 'folder-btn selected';
+  const btn = document.createElement('button');
+  btn.className = 'folder-btn';
   btn.textContent = folderName;
-  btn.onclick     = () => selectFolder(folderName, btn);
-  grid.insertBefore(btn, addBt);
+  btn.onclick = function() {
+    selectFolder(folderName, btn);
+  };
 
-  document.getElementById('btnConfirm').disabled = selectedFolders.length === 0;
+  grid.insertBefore(btn, addBtn);
+  selectFolder(folderName, btn);
 }
 
 async function saveShare() {
-  if (!shareData) {
-    showToast('공유 데이터가 없어요. 다시 공유해주세요.');
-    return;
-  }
+  if (!shareData) return;
 
-  if (selectedFolders.length === 0) {
-    showToast('폴더를 선택해주세요.');
-    return;
-  }
-
-  const memo    = document.getElementById('memoInput').value.trim();
+  const memo = document.getElementById('memoInput').value.trim();
   const overlay = document.getElementById('savingOverlay');
+  const confirmBtn = document.getElementById('btnConfirm');
+
   overlay.classList.add('show');
-  document.getElementById('btnConfirm').disabled = true;
+  confirmBtn.disabled = true;
 
   function onSuccess() {
     showToast('담았어요 🌸');
+
     setTimeout(function() {
-      try { window.close(); } catch(_) {}
+      try {
+        window.close();
+      } catch (_) {}
+
       location.href = 'index.html';
     }, 800);
   }
 
   function onError(msg) {
     overlay.classList.remove('show');
-    document.getElementById('btnConfirm').disabled = selectedFolders.length === 0;
-    showToast('저장 실패: ' + (msg || '알 수 없는 오류'));
+    confirmBtn.disabled = false;
+    showToast('저장 실패: ' + (msg || ''));
+  }
+
+  function handleResult(d) {
+    if (d.success) {
+      if (d.skippedCount && d.skippedCount > 0) {
+        showToast(`저장 완료! 중복 ${d.skippedCount}개는 제외했어요 🌸`);
+
+        setTimeout(function() {
+          try {
+            window.close();
+          } catch (_) {}
+
+          location.href = 'index.html';
+        }, 1200);
+      } else {
+        onSuccess();
+      }
+
+      return;
+    }
+
+    if (d.duplicate) {
+      overlay.classList.remove('show');
+      confirmBtn.disabled = false;
+      showToast(d.error || '이미 담겨있는 항목이에요 🌸');
+      return;
+    }
+
+    onError(d.error || '저장 실패');
   }
 
   if (shareData.type === 'image') {
     const fd = new FormData();
-    sharedFiles.forEach(function(f) { fd.append('images', f); });
-    selectedFolders.forEach(function(f) { fd.append('folders[]', f); });
-    if (memo) fd.append('memo', memo);
+
+    sharedFiles.forEach(function(f) {
+      fd.append('images', f);
+    });
+
+    selectedFolders.forEach(function(f) {
+      fd.append('folders[]', f);
+    });
+
+    if (memo) {
+      fd.append('memo', memo);
+    }
 
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', WORKER_URL + '/save-images', true);
+    xhr.open('POST', WORKER_URL.replace(/\/$/, '') + '/save-images', true);
     xhr.setRequestHeader('X-Secret-Key', SECRET_KEY);
     xhr.timeout = 30000;
+
     xhr.onload = function() {
       try {
-        const d = JSON.parse(xhr.responseText || '{}');
-        if (xhr.status >= 200 && xhr.status < 300 && d.success) onSuccess();
-        else onError(d.error || ('HTTP ' + xhr.status));
-      } catch(e) {
-        onError(e.message);
+        const d = JSON.parse(xhr.responseText);
+        handleResult(d);
+      } catch (e) {
+        onError(`HTTP ${xhr.status || ''} ${e.message || ''}`);
       }
     };
-    xhr.onerror = xhr.ontimeout = function() { onError('네트워크 오류'); };
+
+    xhr.onerror = function() {
+      onError('네트워크 오류');
+    };
+
+    xhr.ontimeout = function() {
+      onError('응답 시간 초과');
+    };
+
     xhr.send(fd);
 
   } else {
@@ -546,48 +733,75 @@ async function saveShare() {
         };
 
     const xhr2 = new XMLHttpRequest();
-    xhr2.open('POST', WORKER_URL + '/save-link', true);
+    xhr2.open('POST', WORKER_URL.replace(/\/$/, '') + '/save-link', true);
     xhr2.setRequestHeader('X-Secret-Key', SECRET_KEY);
     xhr2.setRequestHeader('Content-Type', 'application/json');
     xhr2.timeout = 10000;
+
     xhr2.onload = function() {
       try {
-        const d = JSON.parse(xhr2.responseText || '{}');
-        if (xhr2.status >= 200 && xhr2.status < 300 && d.success) onSuccess();
-        else onError(d.error || ('HTTP ' + xhr2.status));
-      } catch(e) {
-        onError(e.message);
+        const d = JSON.parse(xhr2.responseText);
+        handleResult(d);
+      } catch (e) {
+        onError(`HTTP ${xhr2.status || ''} ${e.message || ''}`);
       }
     };
-    xhr2.onerror = xhr2.ontimeout = function() { onError('네트워크 오류'); };
+
+    xhr2.onerror = function() {
+      onError('네트워크 오류');
+    };
+
+    xhr2.ontimeout = function() {
+      onError('응답 시간 초과');
+    };
+
     xhr2.send(JSON.stringify(body));
   }
 }
 
 function cancel() {
-  try { window.close(); } catch (_) {}
+  try {
+    window.close();
+  } catch (_) {}
+
   history.back();
 }
 
-// ─── 유틸 ──────────────────────────────────────────────────────────────────────
 function escHtml(str) {
-  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 function showToast(msg) {
+  const old = document.querySelector('.toast');
+  if (old) old.remove();
+
   const el = document.createElement('div');
-  el.className   = 'toast';
+  el.className = 'toast';
   el.textContent = msg;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 2200);
+
+  setTimeout(function() {
+    el.remove();
+  }, 2300);
 }
 
-// ─── SW 등록 후 초기화 ──────────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then(() => init()).catch(() => init());
+  navigator.serviceWorker
+    .register('./sw.js')
+    .then(function() {
+      init();
+    })
+    .catch(function() {
+      init();
+    });
 } else {
   init();
 }
 </script>
+
 </body>
 </html>
