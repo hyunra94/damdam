@@ -2,7 +2,7 @@
 
 const SHARE_DATA_CACHE  = 'damdam-share-data';
 const SHARE_FILES_CACHE = 'damdam-share-files';
-const APP_CACHE         = 'damdam-app-v2'; // 버전 올려서 강제 갱신
+const APP_CACHE         = 'damdam-app-v3'; // 버전 올려서 강제 갱신
 
 self.addEventListener('install', () => self.skipWaiting());
 
@@ -22,30 +22,25 @@ self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // 외부 요청(Worker API 등)은 SW에서 아예 건드리지 않음
+  if (url.origin !== self.location.origin) return;
+
   // 공유 대상 POST 수신
   if (url.pathname.endsWith('/share') && request.method === 'POST') {
     event.respondWith(handleShareTarget(request, url));
     return;
   }
 
-  // 앱 HTML/JS/JSON 파일 → 네트워크 우선 (항상 최신 버전)
-  const isAppFile = url.hostname === self.location.hostname;
-  if (isAppFile && request.method === 'GET') {
-    event.respondWith(
-      fetch(request)
-        .then(res => {
-          // 성공하면 캐시에도 저장
-          const clone = res.clone();
-          caches.open(APP_CACHE).then(c => c.put(request, clone));
-          return res;
-        })
-        .catch(() => caches.match(request)) // 오프라인이면 캐시 사용
-    );
-    return;
-  }
-
-  // 외부 요청(Worker API 등)은 그냥 통과
-  event.respondWith(fetch(request));
+  // 앱 파일 → 네트워크 우선
+  event.respondWith(
+    fetch(request)
+      .then(res => {
+        const clone = res.clone();
+        caches.open(APP_CACHE).then(c => c.put(request, clone));
+        return res;
+      })
+      .catch(() => caches.match(request))
+  );
 });
 
 // ─── 공유 수신 처리 ────────────────────────────────────────────────────────────
