@@ -276,15 +276,13 @@ let sharedFiles = [];
 let selectedFolders = [];
 
 // ─── 초기화 ────────────────────────────────────────────────────────────────────
-async function init() {
+function init() {
   if (!WORKER_URL || !SECRET_KEY) {
     showToast('설정이 필요해요. 메인 화면에서 먼저 설정해주세요.');
-    setTimeout(() => location.href = 'index.html', 2000);
+    setTimeout(function() { location.href = 'index.html'; }, 2000);
     return;
   }
-
-  await loadShareData();
-  await loadFolders();
+  loadShareData();
 }
 
 // ─── SW 캐시에서 공유 데이터 읽기 ──────────────────────────────────────────────
@@ -332,6 +330,7 @@ async function loadShareData() {
   }
 
   renderPreview();
+  loadFolders();
 }
 
 // ─── 미리보기 렌더링 ────────────────────────────────────────────────────────────
@@ -392,35 +391,38 @@ function renderPreview() {
 }
 
 // ─── 폴더 목록 로드 ────────────────────────────────────────────────────────────
-async function loadFolders() {
+function loadFolders() {
   const grid = document.getElementById('folderGrid');
-  try {
-    const res  = await fetch(`${WORKER_URL}/folders`, {
-      headers: { 'X-Secret-Key': SECRET_KEY }
-    });
-    const data = await res.json();
-    const folders = data.folders || [];
-
-    grid.innerHTML = '';
-    folders.forEach(name => {
-      const btn = document.createElement('button');
-      btn.className   = 'folder-btn';
-      btn.textContent = name;
-      btn.onclick     = () => selectFolder(name, btn);
-      grid.appendChild(btn);
-    });
-
-    // 폴더 추가 버튼
-    const addBtn = document.createElement('button');
-    addBtn.className   = 'folder-btn';
-    addBtn.textContent = '+ 폴더 추가';
-    addBtn.style.color = '#CCC';
-    addBtn.onclick     = () => addFolder();
-    grid.appendChild(addBtn);
-
-  } catch (e) {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', WORKER_URL + '/folders', true);
+  xhr.setRequestHeader('X-Secret-Key', SECRET_KEY);
+  xhr.timeout = 10000;
+  xhr.onload = function() {
+    try {
+      const data = JSON.parse(xhr.responseText);
+      const folders = data.folders || [];
+      grid.innerHTML = '';
+      folders.forEach(function(name) {
+        const btn = document.createElement('button');
+        btn.className = 'folder-btn';
+        btn.textContent = name;
+        btn.onclick = function() { selectFolder(name, btn); };
+        grid.appendChild(btn);
+      });
+      const addBtn = document.createElement('button');
+      addBtn.className = 'folder-btn';
+      addBtn.textContent = '+ 폴더 추가';
+      addBtn.style.color = '#CCC';
+      addBtn.onclick = function() { addFolder(); };
+      grid.appendChild(addBtn);
+    } catch(e) {
+      grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢</div>';
+    }
+  };
+  xhr.onerror = xhr.ontimeout = function() {
     grid.innerHTML = '<div class="loading-folders">폴더 불러오기 실패 😢</div>';
-  }
+  };
+  xhr.send();
 }
 
 function selectFolder(name, btn) {
@@ -455,61 +457,50 @@ async function addFolder() {
   overlay.classList.add('show');
   document.getElementById('btnConfirm').disabled = true;
 
-  try {
-    if (shareData.type === 'image') {
-      const fd = new FormData();
-      sharedFiles.forEach(f => fd.append('images', f));
-      selectedFolders.forEach(f => fd.append('folders[]', f));
-      if (memo) fd.append('memo', memo);
-
-      const res = await fetch(`${WORKER_URL}/save-images`, {
-        method: 'POST',
-        headers: { 'X-Secret-Key': SECRET_KEY },
-        body: fd
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error || '저장 실패');
-
-    } else if (shareData.type === 'link') {
-      const res = await fetch(`${WORKER_URL}/save-link`, {
-        method: 'POST',
-        headers: { 'X-Secret-Key': SECRET_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title:  shareData.title || shareData.url,
-          url:    shareData.url,
-          folders: selectedFolders,
-          memo
-        })
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error || '저장 실패');
-
-    } else {
-      // memo type → link 없이 저장
-      const res = await fetch(`${WORKER_URL}/save-link`, {
-        method: 'POST',
-        headers: { 'X-Secret-Key': SECRET_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title:  shareData.text || shareData.title || '메모',
-          url:    '',
-          folders: selectedFolders,
-          memo:   shareData.text || memo
-        })
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error || '저장 실패');
-    }
-
+  function onSuccess() {
     showToast('담았어요 🌸');
-    setTimeout(() => {
-      try { window.close(); } catch (_) {}
+    setTimeout(function() {
+      try { window.close(); } catch(_) {}
       location.href = 'index.html';
     }, 800);
-
-  } catch (e) {
+  }
+  function onError(msg) {
     overlay.classList.remove('show');
     document.getElementById('btnConfirm').disabled = false;
-    showToast('저장 실패: ' + e.message);
+    showToast('저장 실패: ' + (msg || ''));
+  }
+
+  if (shareData.type === 'image') {
+    var fd = new FormData();
+    sharedFiles.forEach(function(f) { fd.append('images', f); });
+    selectedFolders.forEach(function(f) { fd.append('folders[]', f); });
+    if (memo) fd.append('memo', memo);
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', WORKER_URL + '/save-images', true);
+    xhr.setRequestHeader('X-Secret-Key', SECRET_KEY);
+    xhr.timeout = 30000;
+    xhr.onload = function() {
+      try { var d = JSON.parse(xhr.responseText); d.success ? onSuccess() : onError(d.error); }
+      catch(e) { onError(e.message); }
+    };
+    xhr.onerror = xhr.ontimeout = function() { onError('네트워크 오류'); };
+    xhr.send(fd);
+
+  } else {
+    var body = shareData.type === 'link'
+      ? { title: shareData.title || shareData.url, url: shareData.url, folders: selectedFolders, memo: memo }
+      : { title: shareData.text || shareData.title || '메모', url: '', folders: selectedFolders, memo: shareData.text || memo };
+    var xhr2 = new XMLHttpRequest();
+    xhr2.open('POST', WORKER_URL + '/save-link', true);
+    xhr2.setRequestHeader('X-Secret-Key', SECRET_KEY);
+    xhr2.setRequestHeader('Content-Type', 'application/json');
+    xhr2.timeout = 10000;
+    xhr2.onload = function() {
+      try { var d = JSON.parse(xhr2.responseText); d.success ? onSuccess() : onError(d.error); }
+      catch(e) { onError(e.message); }
+    };
+    xhr2.onerror = xhr2.ontimeout = function() { onError('네트워크 오류'); };
+    xhr2.send(JSON.stringify(body));
   }
 }
 
