@@ -273,7 +273,7 @@ const SECRET_KEY = localStorage.getItem('damdam_secret_key') || '';
 
 let shareData   = null;
 let sharedFiles = [];
-let selectedFolder = '';
+let selectedFolders = [];
 
 // ─── 초기화 ────────────────────────────────────────────────────────────────────
 async function init() {
@@ -424,10 +424,15 @@ async function loadFolders() {
 }
 
 function selectFolder(name, btn) {
-  selectedFolder = name;
-  document.querySelectorAll('.folder-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  document.getElementById('btnConfirm').disabled = false;
+  const idx = selectedFolders.indexOf(name);
+  if (idx >= 0) {
+    selectedFolders.splice(idx, 1);
+    btn.classList.remove('selected');
+  } else {
+    selectedFolders.push(name);
+    btn.classList.add('selected');
+  }
+  document.getElementById('btnConfirm').disabled = selectedFolders.length === 0;
 }
 
 async function addFolder() {
@@ -443,10 +448,6 @@ async function addFolder() {
   grid.insertBefore(btn, addBt);
   selectFolder(name.trim(), btn);
 }
-
-// ─── 저장 ──────────────────────────────────────────────────────────────────────
-async function confirm() {
-  if (!selectedFolder) return showToast('폴더를 선택해주세요');
   if (!shareData)      return;
 
   const memo    = document.getElementById('memoInput').value.trim();
@@ -458,7 +459,7 @@ async function confirm() {
     if (shareData.type === 'image') {
       const fd = new FormData();
       sharedFiles.forEach(f => fd.append('images', f));
-      fd.append('folder', selectedFolder);
+      selectedFolders.forEach(f => fd.append('folders[]', f));
       if (memo) fd.append('memo', memo);
 
       const res = await fetch(`${WORKER_URL}/save-images`, {
@@ -476,7 +477,7 @@ async function confirm() {
         body: JSON.stringify({
           title:  shareData.title || shareData.url,
           url:    shareData.url,
-          folder: selectedFolder,
+          folders: selectedFolders,
           memo
         })
       });
@@ -491,7 +492,7 @@ async function confirm() {
         body: JSON.stringify({
           title:  shareData.text || shareData.title || '메모',
           url:    '',
-          folder: selectedFolder,
+          folders: selectedFolders,
           memo:   shareData.text || memo
         })
       });
