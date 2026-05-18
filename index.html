@@ -12,533 +12,424 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
     :root {
-      --pink:       #FF8FAB;
-      --pink-light: #FFD6E0;
-      --pink-pale:  #FFF0F5;
-      --pink-deep:  #E8557A;
-      --text:       #2D2D2D;
-      --text-sub:   #888;
-      --bg:         #F9F4F6;
-      --white:      #FFFFFF;
-      --radius:     16px;
-      --shadow:     0 2px 12px rgba(0,0,0,0.07);
+      --pink:#FF8FAB; --pink-light:#FFD6E0; --pink-pale:#FFF0F5; --pink-deep:#E8557A;
+      --text:#2D2D2D; --text-sub:#888; --bg:#F9F4F6; --white:#FFFFFF;
+      --radius:16px; --shadow:0 2px 12px rgba(0,0,0,0.07);
     }
-
-    body {
-      font-family: 'Noto Sans KR', sans-serif;
-      background: var(--bg);
-      min-height: 100dvh;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
+    body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); min-height:100dvh; padding-bottom:calc(20px + env(safe-area-inset-bottom)); }
 
     /* ── 헤더 ── */
-    .header {
-      position: sticky; top: 0; z-index: 10;
-      background: var(--white);
-      padding: 14px 16px calc(14px + env(safe-area-inset-top));
-      padding-top: calc(14px + env(safe-area-inset-top));
-      display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 1px 8px rgba(0,0,0,0.06);
-    }
-    .header-title {
-      font-size: 22px; font-weight: 700; color: var(--pink-deep);
-      letter-spacing: -0.5px;
-    }
-    .header-title span { color: var(--pink); }
-    .header-icons { display: flex; gap: 4px; }
-    .icon-btn {
-      width: 38px; height: 38px; border-radius: 50%;
-      border: none; background: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; transition: background .15s;
-    }
-    .icon-btn:active { background: var(--pink-pale); }
+    .header { position:sticky; top:0; z-index:10; background:var(--white); padding:calc(14px + env(safe-area-inset-top)) 16px 14px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 1px 8px rgba(0,0,0,0.06); }
+    .header-title { font-size:22px; font-weight:700; color:var(--pink-deep); letter-spacing:-0.5px; }
+    .header-title span { color:var(--pink); }
+    .header-icons { display:flex; gap:4px; }
+    .icon-btn { width:38px; height:38px; border-radius:50%; border:none; background:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:20px; transition:background .15s; }
+    .icon-btn:active { background:var(--pink-pale); }
 
-    /* ── 폴더 탭 ── */
-    .tabs-wrap {
-      overflow-x: auto; scrollbar-width: none;
-      padding: 12px 16px 4px;
-      display: flex; gap: 8px;
-      background: var(--white);
-      border-bottom: 1px solid #F0E8EC;
-    }
-    .tabs-wrap::-webkit-scrollbar { display: none; }
-    .tab {
-      padding: 7px 14px; border-radius: 20px;
-      font-size: 13px; font-weight: 500;
-      white-space: nowrap; cursor: pointer;
-      border: 1.5px solid #EAEAEA;
-      background: var(--white);
-      color: var(--text-sub);
-      transition: all .15s;
-      flex-shrink: 0;
-    }
-    .tab.active {
-      background: var(--pink);
-      border-color: var(--pink);
-      color: white; font-weight: 700;
-    }
+    /* ── 폴더 섹션 ── */
+    .folder-section { background:var(--white); border-bottom:1px solid #F0E8EC; }
+    .folder-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; cursor:pointer; user-select:none; }
+    .folder-header-left { display:flex; align-items:center; gap:8px; }
+    .folder-current { font-size:14px; font-weight:700; color:var(--pink-deep); }
+    .folder-toggle { font-size:12px; color:var(--text-sub); transition:transform .2s; }
+    .folder-toggle.open { transform:rotate(180deg); }
+    .folder-grid-wrap { display:none; padding:4px 12px 12px; }
+    .folder-grid-wrap.open { display:block; }
+    .folder-pills { display:flex; flex-wrap:wrap; gap:8px; }
+    .folder-pill { padding:7px 14px; border-radius:20px; font-size:13px; font-weight:500; white-space:nowrap; cursor:pointer; border:1.5px solid #EAEAEA; background:var(--white); color:var(--text-sub); transition:all .15s; font-family:inherit; }
+    .folder-pill:active { transform:scale(.95); }
+    .folder-pill.active { background:var(--pink); border-color:var(--pink); color:white; font-weight:700; }
+    .folder-pill.add-btn { border-style:dashed; color:var(--pink); border-color:var(--pink-light); }
 
-    /* ── 아이템 그리드 ── */
-    .grid {
-      padding: 14px 12px;
-      columns: 2; column-gap: 10px;
-    }
-    .card {
-      break-inside: avoid;
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      margin-bottom: 10px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform .15s, box-shadow .15s;
-      position: relative;
-    }
-    .card:active { transform: scale(.97); box-shadow: none; }
+    /* ── 그리드 ── */
+    .grid { padding:14px 12px; columns:2; column-gap:10px; }
+    .card { break-inside:avoid; background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:10px; overflow:hidden; cursor:pointer; transition:transform .15s,box-shadow .15s; position:relative; }
+    .card:active { transform:scale(.97); box-shadow:none; }
+    .card-thumb { width:100%; aspect-ratio:1; object-fit:cover; background:var(--pink-pale); display:block; }
+    .card-thumb.wide { aspect-ratio:16/9; }
+    .card-body { padding:8px 10px 10px; }
+    .card-type { display:inline-flex; align-items:center; gap:3px; font-size:10px; font-weight:700; color:var(--pink-deep); background:var(--pink-pale); padding:2px 7px; border-radius:8px; margin-bottom:4px; }
+    .card-title { font-size:13px; font-weight:500; color:var(--text); line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .card-sub { font-size:11px; color:var(--text-sub); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .card-memo { font-size:11px; color:var(--text-sub); margin-top:4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .card-folder { font-size:10px; color:var(--pink); margin-top:4px; }
+    .card-img-footer { padding:6px 10px 8px; }
+    .card-img-footer .card-folder { margin-top:0; }
+    .card-memo-only { padding:14px 12px; font-size:13px; color:var(--text); line-height:1.6; display:-webkit-box; -webkit-line-clamp:6; -webkit-box-orient:vertical; overflow:hidden; }
 
-    .card-thumb {
-      width: 100%; aspect-ratio: 16/9;
-      object-fit: cover;
-      background: var(--pink-pale);
-      display: block;
-    }
-    .card-thumb.tall { aspect-ratio: 1; }
+    /* 휴지통 버튼 */
+    .card-del { position:absolute; top:6px; right:6px; width:28px; height:28px; border-radius:50%; background:rgba(0,0,0,0.55); border:none; cursor:pointer; color:white; display:none; align-items:center; justify-content:center; padding:0; }
+    .card-del svg { width:14px; height:14px; }
+    .card.editing .card-del { display:flex; }
+    .card.editing { animation:wiggle .3s ease infinite alternate; }
+    @keyframes wiggle { from{transform:rotate(-1.5deg)} to{transform:rotate(1.5deg)} }
 
-    .card-body { padding: 10px 10px 12px; }
-    .card-type {
-      display: inline-flex; align-items: center; gap: 3px;
-      font-size: 10px; font-weight: 700;
-      color: var(--pink-deep);
-      background: var(--pink-pale);
-      padding: 2px 7px; border-radius: 8px;
-      margin-bottom: 5px;
-    }
-    .card-title {
-      font-size: 13px; font-weight: 500; color: var(--text);
-      line-height: 1.45;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .card-sub {
-      font-size: 11px; color: var(--text-sub);
-      margin-top: 3px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .card-memo {
-      font-size: 11px; color: var(--text-sub);
-      margin-top: 4px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .card-folder {
-      font-size: 10px; color: var(--pink);
-      margin-top: 5px;
-    }
+    /* ── 빈 상태 / 로딩 ── */
+    .empty { text-align:center; padding:60px 20px; color:var(--text-sub); column-span:all; }
+    .empty-icon { font-size:48px; margin-bottom:12px; }
+    .empty-title { font-size:16px; font-weight:700; color:var(--text); margin-bottom:6px; }
+    .loading { text-align:center; padding:60px 20px; column-span:all; }
+    .spinner { width:32px; height:32px; border:3px solid var(--pink-light); border-top-color:var(--pink); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto; }
+    @keyframes spin { to{transform:rotate(360deg)} }
 
-    /* memo 전용 카드 */
-    .card-memo-only {
-      padding: 14px 12px;
-      font-size: 13px; color: var(--text);
-      line-height: 1.6;
-      display: -webkit-box;
-      -webkit-line-clamp: 6;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+    /* ── 편집 배너 ── */
+    .edit-banner { display:none; position:fixed; bottom:calc(20px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); background:var(--text); color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:500; z-index:20; white-space:nowrap; }
+    .edit-banner.show { display:block; }
 
-    /* 삭제 버튼 */
-    .card-del {
-      position: absolute; top: 6px; right: 6px;
-      width: 26px; height: 26px; border-radius: 50%;
-      background: rgba(0,0,0,0.5); border: none; cursor: pointer;
-      color: white; font-size: 13px;
-      display: none; align-items: center; justify-content: center;
-    }
-    .card.editing .card-del { display: flex; }
-    .card.editing { animation: wiggle .3s ease infinite alternate; }
-    @keyframes wiggle {
-      from { transform: rotate(-1.5deg); }
-      to   { transform: rotate(1.5deg); }
-    }
+    /* ── 삭제 확인 모달 ── */
+    .confirm-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:60; align-items:center; justify-content:center; }
+    .confirm-overlay.show { display:flex; }
+    .confirm-box { background:var(--white); border-radius:24px; padding:32px 28px 24px; width:calc(100% - 60px); max-width:320px; text-align:center; animation:popIn .2s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes popIn { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
+    .confirm-icon { font-size:40px; margin-bottom:14px; }
+    .confirm-title { font-size:18px; font-weight:700; color:var(--text); margin-bottom:10px; }
+    .confirm-desc { font-size:14px; color:var(--text-sub); line-height:1.8; margin-bottom:24px; }
+    .confirm-btns { display:flex; gap:10px; }
+    .confirm-cancel { flex:1; padding:13px; border-radius:14px; border:1.5px solid #EAEAEA; background:var(--white); font-family:inherit; font-size:15px; font-weight:600; color:var(--text-sub); cursor:pointer; }
+    .confirm-cancel:active { background:#F5F5F5; }
+    .confirm-delete { flex:1; padding:13px; border-radius:14px; border:none; background:#FF4D6D; font-family:inherit; font-size:15px; font-weight:700; color:white; cursor:pointer; }
+    .confirm-delete:active { background:#D63051; }
 
-    /* ── 빈 상태 ── */
-    .empty {
-      text-align: center; padding: 60px 20px;
-      color: var(--text-sub);
-    }
-    .empty-icon { font-size: 48px; margin-bottom: 12px; }
-    .empty-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-    .empty-desc  { font-size: 13px; }
-
-    /* ── 로딩 ── */
-    .loading {
-      text-align: center; padding: 60px 20px;
-    }
-    .spinner {
-      width: 32px; height: 32px;
-      border: 3px solid var(--pink-light);
-      border-top-color: var(--pink);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      margin: 0 auto;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── 이미지 뷰어 ── */
+    .viewer-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:100; flex-direction:column; }
+    .viewer-overlay.show { display:flex; }
+    .viewer-header { display:flex; align-items:center; justify-content:space-between; padding:calc(16px + env(safe-area-inset-top)) 16px 16px; }
+    .viewer-count { font-size:14px; color:rgba(255,255,255,0.7); }
+    .viewer-close { background:none; border:none; color:white; font-size:26px; cursor:pointer; line-height:1; padding:4px; }
+    .viewer-track-wrap { flex:1; overflow:hidden; position:relative; }
+    .viewer-track { display:flex; height:100%; transition:transform .3s cubic-bezier(.25,.8,.25,1); }
+    .viewer-slide { flex-shrink:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; padding:0 8px; }
+    .viewer-slide img { max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; }
+    .viewer-dots { display:flex; justify-content:center; gap:6px; padding:12px 0 calc(12px + env(safe-area-inset-bottom)); }
+    .viewer-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.35); transition:all .2s; }
+    .viewer-dot.active { background:white; width:18px; border-radius:3px; }
 
     /* ── 설정 모달 ── */
-    .modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.4); z-index: 50;
-      align-items: flex-end; justify-content: center;
-    }
-    .modal-overlay.show { display: flex; }
-    .modal {
-      width: 100%; max-width: 480px;
-      background: var(--white);
-      border-radius: 24px 24px 0 0;
-      padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
-      animation: slideUp .25s ease;
-    }
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to   { transform: translateY(0); }
-    }
-    .modal-title {
-      font-size: 18px; font-weight: 700; color: var(--text);
-      margin-bottom: 20px;
-    }
-    .field-label {
-      font-size: 13px; font-weight: 700; color: var(--text-sub);
-      margin-bottom: 6px; margin-top: 14px;
-    }
-    .field-label:first-of-type { margin-top: 0; }
-    .field-input {
-      width: 100%;
-      border: 1.5px solid #EAEAEA; border-radius: 12px;
-      padding: 11px 14px;
-      font-family: inherit; font-size: 14px; color: var(--text);
-      outline: none; transition: border-color .15s;
-    }
-    .field-input:focus { border-color: var(--pink); }
-    .modal-save {
-      width: 100%; padding: 14px;
-      background: var(--pink); border: none; border-radius: 14px;
-      font-family: inherit; font-size: 16px; font-weight: 700;
-      color: white; cursor: pointer;
-      margin-top: 20px; transition: background .15s;
-    }
-    .modal-save:active { background: var(--pink-deep); }
-    .modal-close {
-      position: absolute; top: 16px; right: 16px;
-      background: none; border: none; cursor: pointer;
-      font-size: 22px; color: var(--text-sub);
-    }
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:50; align-items:flex-end; justify-content:center; }
+    .modal-overlay.show { display:flex; }
+    .modal { width:100%; max-width:480px; background:var(--white); border-radius:24px 24px 0 0; padding:20px 20px calc(20px + env(safe-area-inset-bottom)); animation:slideUp .25s ease; position:relative; }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .modal-title { font-size:18px; font-weight:700; color:var(--text); margin-bottom:20px; }
+    .field-label { font-size:13px; font-weight:700; color:var(--text-sub); margin-bottom:6px; margin-top:14px; }
+    .field-input { width:100%; border:1.5px solid #EAEAEA; border-radius:12px; padding:11px 14px; font-family:inherit; font-size:14px; color:var(--text); outline:none; transition:border-color .15s; }
+    .field-input:focus { border-color:var(--pink); }
+    .modal-save { width:100%; padding:14px; background:var(--pink); border:none; border-radius:14px; font-family:inherit; font-size:16px; font-weight:700; color:white; cursor:pointer; margin-top:20px; }
+    .modal-save:active { background:var(--pink-deep); }
+    .modal-close { position:absolute; top:16px; right:16px; background:none; border:none; cursor:pointer; font-size:22px; color:var(--text-sub); }
 
-    /* ── toast ── */
-    .toast {
-      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,0.75); color: white;
-      padding: 10px 20px; border-radius: 20px;
-      font-size: 14px; white-space: nowrap;
-      animation: fadeInOut 2.5s ease forwards; z-index: 999;
-    }
-    @keyframes fadeInOut {
-      0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
-      15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
-      80%  { opacity: 1; }
-      100% { opacity: 0; }
-    }
-
-    /* ── 편집 모드 배너 ── */
-    .edit-banner {
-      display: none;
-      position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%;
-      transform: translateX(-50%);
-      background: var(--text); color: white;
-      padding: 10px 20px; border-radius: 20px;
-      font-size: 13px; font-weight: 500;
-      z-index: 20;
-    }
-    .edit-banner.show { display: block; }
+    /* ── 토스트 ── */
+    .toast { position:fixed; bottom:calc(30px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.75); color:white; padding:10px 20px; border-radius:20px; font-size:14px; white-space:nowrap; animation:fadeInOut 2.5s ease forwards; z-index:999; }
+    @keyframes fadeInOut { 0%{opacity:0;transform:translateX(-50%) translateY(10px)} 15%{opacity:1;transform:translateX(-50%) translateY(0)} 80%{opacity:1} 100%{opacity:0} }
   </style>
 </head>
 <body>
 
-<!-- 헤더 -->
 <div class="header">
   <div class="header-title">담<span>담</span></div>
   <div class="header-icons">
-    <button class="icon-btn" onclick="toggleEditMode()" id="editBtn" title="편집">✂️</button>
-    <button class="icon-btn" onclick="openSettings()" title="설정">⚙️</button>
+    <button class="icon-btn" onclick="toggleEditMode()" id="editBtn">✂️</button>
+    <button class="icon-btn" onclick="openSettings()">⚙️</button>
   </div>
 </div>
 
-<!-- 폴더 탭 -->
-<div class="tabs-wrap" id="tabsWrap">
-  <div class="tab active" data-folder="all" onclick="selectTab(this, 'all')">전체</div>
+<!-- 폴더 섹션 -->
+<div class="folder-section">
+  <div class="folder-header" onclick="toggleFolders()">
+    <div class="folder-header-left">
+      <span>📁</span>
+      <span class="folder-current" id="folderHeaderLabel">전체</span>
+    </div>
+    <span class="folder-toggle" id="folderToggle">▾</span>
+  </div>
+  <div class="folder-grid-wrap" id="folderGridWrap">
+    <div class="folder-pills" id="folderPills"></div>
+  </div>
 </div>
 
-<!-- 아이템 그리드 -->
 <div class="grid" id="itemGrid">
   <div class="loading"><div class="spinner"></div></div>
 </div>
 
-<!-- 편집 모드 배너 -->
-<div class="edit-banner" id="editBanner">카드를 눌러 삭제 &nbsp; | &nbsp; 다시 눌러 완료</div>
+<div class="edit-banner" id="editBanner">카드를 눌러 삭제 &nbsp;|&nbsp; 다시 눌러 완료</div>
+
+<!-- 삭제 확인 모달 -->
+<div class="confirm-overlay" id="confirmModal">
+  <div class="confirm-box">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title">정말 삭제할까요?</div>
+    <div class="confirm-desc">한번 삭제하면<br>되돌릴 수 없어요</div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirm()">취소</button>
+      <button class="confirm-delete" onclick="doDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- 이미지 뷰어 -->
+<div class="viewer-overlay" id="viewerOverlay">
+  <div class="viewer-header">
+    <span class="viewer-count" id="viewerCount"></span>
+    <button class="viewer-close" onclick="closeViewer()">✕</button>
+  </div>
+  <div class="viewer-track-wrap" id="viewerTrackWrap">
+    <div class="viewer-track" id="viewerTrack"></div>
+  </div>
+  <div class="viewer-dots" id="viewerDots"></div>
+</div>
 
 <!-- 설정 모달 -->
 <div class="modal-overlay" id="settingsModal" onclick="closeSettings(event)">
-  <div class="modal" style="position:relative">
+  <div class="modal">
     <button class="modal-close" onclick="closeSettingsBtn()">✕</button>
     <div class="modal-title">⚙️ 설정</div>
-
     <div class="field-label">Worker URL</div>
-    <input class="field-input" id="inputWorkerUrl" type="url"
-      placeholder="https://xxx.workers.dev">
-
+    <input class="field-input" id="inputWorkerUrl" type="url" placeholder="https://xxx.workers.dev">
     <div class="field-label">Secret Key</div>
-    <input class="field-input" id="inputSecretKey" type="password"
-      placeholder="비밀 키 입력">
-
+    <input class="field-input" id="inputSecretKey" type="password" placeholder="비밀 키 입력">
     <button class="modal-save" onclick="saveSettings()">저장</button>
   </div>
 </div>
 
 <script>
-// ─── 상태 ──────────────────────────────────────────────────────────────────────
-let WORKER_URL    = localStorage.getItem('damdam_worker_url') || '';
-let SECRET_KEY    = localStorage.getItem('damdam_secret_key') || '';
-let currentFolder = 'all';
-let editMode      = false;
-let items         = [];
+let WORKER_URL = localStorage.getItem('damdam_worker_url') || '';
+let SECRET_KEY = localStorage.getItem('damdam_secret_key') || '';
+let currentFolder = 'all', editMode = false, folderOpen = false;
+let items = [], folders = [], pendingDelete = null;
+let viewerItems = [], viewerIndex = 0, touchStartX = 0;
 
-// ─── 초기화 ────────────────────────────────────────────────────────────────────
 async function init() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  }
-
-  if (!WORKER_URL || !SECRET_KEY) {
-    openSettings();
-    return;
-  }
-
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+  if (!WORKER_URL || !SECRET_KEY) { openSettings(); return; }
   await loadFolders();
   await loadItems('all');
 }
 
-// ─── 폴더 탭 ──────────────────────────────────────────────────────────────────
 async function loadFolders() {
   try {
-    const res  = await apiFetch('/folders');
-    const data = await res.json();
-    const wrap = document.getElementById('tabsWrap');
-
-    (data.folders || []).forEach(name => {
-      const tab = document.createElement('div');
-      tab.className     = 'tab';
-      tab.dataset.folder = name;
-      tab.textContent   = name;
-      tab.onclick       = () => selectTab(tab, name);
-      wrap.appendChild(tab);
-    });
+    const data = await apiFetch('/folders').then(r => r.json());
+    folders = data.folders || [];
+    renderFolderPills();
   } catch (_) {}
 }
 
-function selectTab(el, folder) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  currentFolder = folder;
-  loadItems(folder);
+function renderFolderPills() {
+  const wrap = document.getElementById('folderPills');
+  wrap.innerHTML = '';
+  wrap.appendChild(makePill('전체', 'all'));
+  folders.forEach(name => wrap.appendChild(makePill(name, name)));
+  const add = document.createElement('button');
+  add.className = 'folder-pill add-btn';
+  add.textContent = '+ 추가';
+  add.onclick = addFolder;
+  wrap.appendChild(add);
 }
 
-// ─── 아이템 로드 ──────────────────────────────────────────────────────────────
+function makePill(label, value) {
+  const btn = document.createElement('button');
+  btn.className = 'folder-pill' + (currentFolder === value ? ' active' : '');
+  btn.textContent = label;
+  btn.onclick = () => selectFolder(value, btn);
+  return btn;
+}
+
+function selectFolder(value, btn) {
+  currentFolder = value;
+  document.querySelectorAll('.folder-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('folderHeaderLabel').textContent = value === 'all' ? '전체' : value;
+  toggleFolders(false);
+  loadItems(value);
+}
+
+function toggleFolders(force) {
+  folderOpen = force !== undefined ? force : !folderOpen;
+  document.getElementById('folderGridWrap').classList.toggle('open', folderOpen);
+  document.getElementById('folderToggle').classList.toggle('open', folderOpen);
+}
+
+async function addFolder() {
+  const name = prompt('새 폴더 이름을 입력하세요');
+  if (!name?.trim()) return;
+  const t = name.trim();
+  if (folders.includes(t)) { showToast('이미 있는 폴더예요'); return; }
+  folders.push(t);
+  renderFolderPills();
+  showToast(`"${t}" 폴더 추가됐어요 🌸`);
+}
+
 async function loadItems(folder) {
   const grid = document.getElementById('itemGrid');
   grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-
   try {
-    const res  = await apiFetch(`/list?folder=${encodeURIComponent(folder)}`);
-    const data = await res.json();
+    const data = await apiFetch(`/list?folder=${encodeURIComponent(folder)}`).then(r => r.json());
     items = data.items || [];
     renderItems();
-  } catch (e) {
-    grid.innerHTML = '<div class="empty"><div class="empty-icon">😢</div><div class="empty-title">불러오기 실패</div><div class="empty-desc">네트워크를 확인해주세요</div></div>';
+  } catch (_) {
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">😢</div><div class="empty-title">불러오기 실패</div><div style="font-size:13px">네트워크를 확인해주세요</div></div>';
   }
 }
 
 function renderItems() {
   const grid = document.getElementById('itemGrid');
   if (!items.length) {
-    grid.innerHTML = `
-      <div class="empty" style="column-span:all">
-        <div class="empty-icon">🌸</div>
-        <div class="empty-title">아직 저장된 게 없어요</div>
-        <div class="empty-desc">공유 버튼으로 담담에 저장해보세요!</div>
-      </div>`;
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">🌸</div><div class="empty-title">아직 저장된 게 없어요</div><div style="font-size:13px">공유 버튼으로 담담에 저장해보세요!</div></div>';
     return;
   }
-
   grid.innerHTML = '';
-  items.forEach((item, idx) => {
-    const card = buildCard(item, idx);
-    grid.appendChild(card);
-  });
+  items.forEach((item, idx) => grid.appendChild(buildCard(item, idx)));
 }
+
+const TRASH_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
 
 function buildCard(item, idx) {
   const card = document.createElement('div');
   card.className = 'card' + (editMode ? ' editing' : '');
-  card.dataset.idx = idx;
 
-  // 삭제 버튼
   const delBtn = document.createElement('button');
   delBtn.className = 'card-del';
-  delBtn.textContent = '✕';
-  delBtn.onclick = (e) => { e.stopPropagation(); deleteItem(item, card); };
+  delBtn.innerHTML = TRASH_SVG;
+  delBtn.onclick = e => { e.stopPropagation(); openConfirm(item, card); };
   card.appendChild(delBtn);
 
   if (item.type === 'image') {
-    const imgKey = item.image_key;
-    const src    = imgKey.startsWith('http') ? imgKey : `${WORKER_URL}/r2/${encodeURIComponent(imgKey)}`;
-    card.innerHTML += `
-      <img class="card-thumb tall" src="${escHtml(src)}" alt="${escHtml(item.title)}"
-           onerror="this.style.display='none'">
-      <div class="card-body">
-        <div class="card-type">🖼 이미지</div>
-        <div class="card-title">${escHtml(item.title)}</div>
-        ${item.memo  ? `<div class="card-memo">${escHtml(item.memo)}</div>` : ''}
-        ${item.folder ? `<div class="card-folder"># ${escHtml(item.folder)}</div>` : ''}
-      </div>`;
-    card.onclick = () => editMode ? null : openImageViewer(src, item.title);
+    const key = item.image_key;
+    const src = key.startsWith('http') ? key : `${WORKER_URL}/r2/${encodeURIComponent(key)}`;
+    const img = document.createElement('img');
+    img.className = 'card-thumb';
+    img.src = src; img.alt = '';
+    img.onerror = () => img.style.display = 'none';
+    card.appendChild(img);
+    if (item.folder) {
+      const f = document.createElement('div');
+      f.className = 'card-img-footer';
+      f.innerHTML = `<div class="card-folder"># ${escHtml(item.folder)}</div>`;
+      card.appendChild(f);
+    }
+    card.onclick = () => {
+      if (editMode) return;
+      const imgs = items.filter(i => i.type === 'image');
+      openViewer(imgs, imgs.findIndex(i => i.id === item.id));
+    };
 
   } else if (item.type === 'link') {
-    const thumb = item.image_key;
-    card.innerHTML += `
-      ${thumb ? `<img class="card-thumb" src="${escHtml(thumb)}" alt=""
-                      onerror="this.style.display='none'">` : ''}
-      <div class="card-body">
-        <div class="card-type">🔗 링크</div>
-        <div class="card-title">${escHtml(item.title)}</div>
-        ${item.url ? `<div class="card-sub">${escHtml(getDomain(item.url))}</div>` : ''}
-        ${item.memo  ? `<div class="card-memo">${escHtml(item.memo)}</div>` : ''}
-        ${item.folder ? `<div class="card-folder"># ${escHtml(item.folder)}</div>` : ''}
-      </div>`;
+    if (item.image_key) {
+      const img = document.createElement('img');
+      img.className = 'card-thumb wide'; img.src = item.image_key; img.alt = '';
+      img.onerror = () => img.style.display = 'none';
+      card.appendChild(img);
+    }
+    const body = document.createElement('div');
+    body.className = 'card-body';
+    body.innerHTML = `<div class="card-type">🔗 링크</div>
+      <div class="card-title">${escHtml(item.title)}</div>
+      ${item.url ? `<div class="card-sub">${escHtml(getDomain(item.url))}</div>` : ''}
+      ${item.memo ? `<div class="card-memo">${escHtml(item.memo)}</div>` : ''}
+      ${item.folder ? `<div class="card-folder"># ${escHtml(item.folder)}</div>` : ''}`;
+    card.appendChild(body);
     card.onclick = () => editMode ? null : (item.url && window.open(item.url, '_blank'));
 
   } else {
-    card.innerHTML += `
-      <div class="card-memo-only">${escHtml(item.memo || item.title)}</div>
+    card.innerHTML += `<div class="card-memo-only">${escHtml(item.memo || item.title)}</div>
       <div class="card-body" style="padding-top:0">
         <div class="card-type">📝 메모</div>
         ${item.folder ? `<div class="card-folder"># ${escHtml(item.folder)}</div>` : ''}
       </div>`;
   }
-
   return card;
 }
 
-// ─── 이미지 뷰어 ──────────────────────────────────────────────────────────────
-function openImageViewer(src, title) {
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `
-    position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:100;
-    display:flex; align-items:center; justify-content:center;
-    animation: fadeIn .2s ease;
-  `;
-  overlay.innerHTML = `
-    <img src="${escHtml(src)}" alt="${escHtml(title)}"
-         style="max-width:95vw; max-height:90dvh; border-radius:12px; object-fit:contain;">
-    <button style="position:absolute;top:16px;right:16px;background:none;border:none;
-      color:white;font-size:28px;cursor:pointer;line-height:1;" onclick="this.parentElement.remove()">✕</button>
-  `;
-  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
-  document.body.appendChild(overlay);
+/* ── 뷰어 ── */
+function openViewer(imgItems, startIdx) {
+  viewerItems = imgItems; viewerIndex = startIdx;
+  const track = document.getElementById('viewerTrack');
+  const dots  = document.getElementById('viewerDots');
+  track.innerHTML = dots.innerHTML = '';
+  imgItems.forEach((item, i) => {
+    const key = item.image_key;
+    const src = key.startsWith('http') ? key : `${WORKER_URL}/r2/${encodeURIComponent(key)}`;
+    const slide = document.createElement('div');
+    slide.className = 'viewer-slide';
+    slide.innerHTML = `<img src="${escHtml(src)}" alt="">`;
+    track.appendChild(slide);
+    const dot = document.createElement('div');
+    dot.className = 'viewer-dot' + (i === startIdx ? ' active' : '');
+    dots.appendChild(dot);
+  });
+  updateViewer(startIdx, false);
+  document.getElementById('viewerOverlay').classList.add('show');
+  const wrap = document.getElementById('viewerTrackWrap');
+  wrap.ontouchstart = e => { touchStartX = e.touches[0].clientX; };
+  wrap.ontouchend   = e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) updateViewer(viewerIndex + (dx < 0 ? 1 : -1));
+  };
 }
+function updateViewer(idx, animate = true) {
+  viewerIndex = Math.max(0, Math.min(viewerItems.length - 1, idx));
+  const track = document.getElementById('viewerTrack');
+  track.style.transition = animate ? 'transform .3s cubic-bezier(.25,.8,.25,1)' : 'none';
+  track.style.transform  = `translateX(-${viewerIndex * 100}%)`;
+  document.getElementById('viewerCount').textContent = `${viewerIndex + 1} / ${viewerItems.length}`;
+  document.querySelectorAll('.viewer-dot').forEach((d, i) => d.classList.toggle('active', i === viewerIndex));
+}
+function closeViewer() { document.getElementById('viewerOverlay').classList.remove('show'); }
 
-// ─── 삭제 ──────────────────────────────────────────────────────────────────────
-async function deleteItem(item, card) {
-  if (!confirm(`"${item.title || '이 항목'}"을 삭제할까요?`)) return;
+/* ── 삭제 확인 ── */
+function openConfirm(item, card) { pendingDelete = {item, card}; document.getElementById('confirmModal').classList.add('show'); }
+function closeConfirm() { pendingDelete = null; document.getElementById('confirmModal').classList.remove('show'); }
+async function doDelete() {
+  if (!pendingDelete) return;
+  const {item, card} = pendingDelete;
+  closeConfirm();
   try {
-    await apiFetch('/delete', 'POST', { id: item.id, image_key: item.image_key });
-    card.style.animation = 'none';
-    card.style.opacity   = '0';
-    card.style.transform = 'scale(0.8)';
-    card.style.transition = 'all .2s';
-    setTimeout(() => { card.remove(); }, 200);
+    await apiFetch('/delete', 'POST', {id: item.id, image_key: item.image_key});
+    card.style.cssText += 'transition:all .2s;opacity:0;transform:scale(0.8)';
+    setTimeout(() => card.remove(), 200);
     items = items.filter(i => i.id !== item.id);
     showToast('삭제했어요');
-  } catch (e) {
-    showToast('삭제 실패: ' + e.message);
-  }
+  } catch (e) { showToast('삭제 실패: ' + e.message); }
 }
 
-// ─── 편집 모드 ────────────────────────────────────────────────────────────────
+/* ── 편집 ── */
 function toggleEditMode() {
   editMode = !editMode;
-  document.getElementById('editBtn').textContent  = editMode ? '✅' : '✂️';
+  document.getElementById('editBtn').textContent = editMode ? '✅' : '✂️';
   document.getElementById('editBanner').classList.toggle('show', editMode);
   document.querySelectorAll('.card').forEach(c => c.classList.toggle('editing', editMode));
 }
 
-// ─── 설정 ────────────────────────────────────────────────────────────────────
+/* ── 설정 ── */
 function openSettings() {
   document.getElementById('inputWorkerUrl').value = WORKER_URL;
   document.getElementById('inputSecretKey').value = SECRET_KEY;
   document.getElementById('settingsModal').classList.add('show');
 }
-function closeSettings(e) {
-  if (e.target.id === 'settingsModal') closeSettingsBtn();
-}
-function closeSettingsBtn() {
-  document.getElementById('settingsModal').classList.remove('show');
-}
+function closeSettings(e) { if (e.target.id === 'settingsModal') closeSettingsBtn(); }
+function closeSettingsBtn() { document.getElementById('settingsModal').classList.remove('show'); }
 function saveSettings() {
   WORKER_URL = document.getElementById('inputWorkerUrl').value.trim().replace(/\/$/, '');
   SECRET_KEY = document.getElementById('inputSecretKey').value.trim();
   localStorage.setItem('damdam_worker_url', WORKER_URL);
   localStorage.setItem('damdam_secret_key', SECRET_KEY);
-  closeSettingsBtn();
-  showToast('설정 저장 완료!');
-  location.reload();
+  closeSettingsBtn(); showToast('설정 저장 완료!'); location.reload();
 }
 
-// ─── API 유틸 ────────────────────────────────────────────────────────────────
+/* ── 유틸 ── */
 function apiFetch(path, method = 'GET', body = null) {
-  const opts = {
-    method,
-    headers: { 'X-Secret-Key': SECRET_KEY }
-  };
-  if (body) {
-    opts.headers['Content-Type'] = 'application/json';
-    opts.body = JSON.stringify(body);
-  }
+  const opts = {method, headers: {'X-Secret-Key': SECRET_KEY}};
+  if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
   return fetch(WORKER_URL + path, opts);
 }
-
-function getDomain(url) {
-  try { return new URL(url).hostname; } catch (_) { return url; }
-}
-
-function escHtml(str) {
-  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
+function getDomain(url) { try { return new URL(url).hostname; } catch (_) { return url; } }
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function showToast(msg) {
   const el = document.createElement('div');
-  el.className   = 'toast';
-  el.textContent = msg;
+  el.className = 'toast'; el.textContent = msg;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2700);
 }
 
-// ─── 시작 ─────────────────────────────────────────────────────────────────────
 init();
 </script>
 </body>
