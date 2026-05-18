@@ -280,7 +280,11 @@ let viewerItems = [], viewerIndex = 0, touchStartX = 0;
 
 async function init() {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
-  if (!WORKER_URL || !SECRET_KEY) { openSettings(); return; }
+  if (!WORKER_URL || !SECRET_KEY) {
+    document.getElementById('itemGrid').innerHTML = '<div class="empty"><div class="empty-icon">⚙️</div><div class="empty-title">설정이 필요해요</div><div style="font-size:13px">우측 상단 ⚙️를 눌러 설정해주세요</div></div>';
+    openSettings();
+    return;
+  }
   await loadFolders();
   await loadItems('all');
 }
