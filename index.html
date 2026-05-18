@@ -272,7 +272,8 @@
   </div>
 </div>
 
-<script> = localStorage.getItem('damdam_worker_url') || '';
+<script>
+let WORKER_URL = localStorage.getItem('damdam_worker_url') || '';
 let SECRET_KEY = localStorage.getItem('damdam_secret_key') || '';
 let currentFolder = 'all', editMode = false, folderOpen = false;
 let items = [], folders = [], pendingDelete = null;
