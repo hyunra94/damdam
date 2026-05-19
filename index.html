@@ -102,7 +102,14 @@ textarea.finput{resize:none;line-height:1.5}
 .viewer.on{display:flex}
 .viewer-hdr{display:flex;align-items:center;justify-content:space-between;padding:calc(16px + env(safe-area-inset-top)) 16px 16px}
 .viewer-cnt{font-size:14px;color:rgba(255,255,255,.7)}
-.viewer-x{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:4px}
+.viewer-hdr-btns{display:flex;gap:4px;align-items:center;position:relative}
+.viewer-x,.viewer-more{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:4px;line-height:1}
+.viewer-more{font-size:22px;letter-spacing:2px}
+.viewer-dropdown{display:none;position:absolute;top:40px;right:0;background:#fff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.25);overflow:hidden;min-width:140px;z-index:10}
+.viewer-dropdown.on{display:block}
+.viewer-dropdown button{display:block;width:100%;padding:13px 16px;border:none;background:none;font-family:inherit;font-size:14px;color:#2D2D2D;cursor:pointer;text-align:left}
+.viewer-dropdown button:active{background:#F5F5F5}
+.viewer-dropdown button+button{border-top:1px solid #F0F0F0}
 .viewer-wrap{flex:1;overflow:hidden}
 .viewer-track{display:flex;height:100%;transition:transform .3s cubic-bezier(.25,.8,.25,1)}
 .viewer-slide{flex-shrink:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:0 8px}
@@ -174,12 +181,30 @@ textarea.finput{resize:none;line-height:1.5}
 <div class="viewer" id="viewer">
   <div class="viewer-hdr">
     <span class="viewer-cnt" id="viewerCnt"></span>
-    <button class="viewer-x" onclick="closeViewer()">✕</button>
+    <div class="viewer-hdr-btns">
+      <button class="viewer-more" onclick="toggleViewerMenu(event)">⋯</button>
+      <div class="viewer-dropdown" id="viewerDropdown">
+        <button onclick="viewerEditFolder()">✏️ 폴더 변경</button>
+        <button onclick="viewerDeleteItem()">🗑️ 삭제</button>
+      </div>
+      <button class="viewer-x" onclick="closeViewer()">✕</button>
+    </div>
   </div>
   <div class="viewer-wrap" id="viewerWrap">
     <div class="viewer-track" id="viewerTrack"></div>
   </div>
   <div class="viewer-dots" id="viewerDots"></div>
+</div>
+
+<!-- 뷰어 폴더 변경 시트 -->
+<div class="overlay" id="viewerEditOverlay" onclick="if(event.target===this)closeViewerEdit()">
+  <div class="sheet">
+    <button class="sheet-close" onclick="closeViewerEdit()">✕</button>
+    <div class="sheet-title">✏️ 폴더 변경</div>
+    <div class="flabel">폴더</div>
+    <div class="folder-sel" id="viewerEditFolderSel"></div>
+    <button class="fbtn" onclick="saveViewerEdit()">저장</button>
+  </div>
 </div>
 
 <!-- 직접 추가 -->
@@ -350,6 +375,7 @@ var TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2
 function buildCard(item) {
   var card = document.createElement('div');
   card.className = 'card' + (editOn ? ' edit' : '');
+  card.dataset.id = item.id;
   var del = document.createElement('button');
   del.className = 'cdel'; del.innerHTML = TRASH;
   del.onclick = function(e) { e.stopPropagation(); openConfirm(item, card); };
@@ -415,6 +441,8 @@ function openViewer(imgs, start) {
   });
   goViewer(start, false);
   document.getElementById('viewer').classList.add('on');
+  // 뒤로가기로 닫기 위해 history 스택 쌓기
+  history.pushState({ viewer: true }, '');
   var wrap = document.getElementById('viewerWrap');
   wrap.ontouchstart = function(e) { tStart = e.touches[0].clientX; };
   wrap.ontouchend = function(e) {
@@ -422,6 +450,7 @@ function openViewer(imgs, start) {
     if (Math.abs(dx) > 50) goViewer(vIdx + (dx < 0 ? 1 : -1), true);
   };
 }
+
 function goViewer(idx, anim) {
   vIdx = Math.max(0, Math.min(vItems.length - 1, idx));
   var t = document.getElementById('viewerTrack');
@@ -430,7 +459,80 @@ function goViewer(idx, anim) {
   document.getElementById('viewerCnt').textContent = (vIdx + 1) + ' / ' + vItems.length;
   document.querySelectorAll('.vdot').forEach(function(d, i) { d.classList.toggle('on', i === vIdx); });
 }
-function closeViewer() { document.getElementById('viewer').classList.remove('on'); }
+
+// X버튼: history.back() → popstate → closeViewerInternal
+function closeViewer() { history.back(); }
+
+// 실제 뷰어 닫기 (popstate에서 호출)
+function closeViewerInternal() {
+  document.getElementById('viewer').classList.remove('on');
+  closeViewerMenu();
+  // 현재 보던 이미지 카드로 스크롤
+  if (vItems[vIdx]) {
+    var card = document.querySelector('[data-id="' + vItems[vIdx].id + '"]');
+    if (card) setTimeout(function() { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+  }
+}
+
+// 뒤로가기 인터셉트
+window.addEventListener('popstate', function() {
+  if (document.getElementById('viewer').classList.contains('on')) {
+    closeViewerInternal();
+  }
+});
+
+// ⋯ 메뉴
+function toggleViewerMenu(e) {
+  e.stopPropagation();
+  document.getElementById('viewerDropdown').classList.toggle('on');
+}
+function closeViewerMenu() {
+  document.getElementById('viewerDropdown').classList.remove('on');
+}
+// 뷰어 바깥 클릭 시 메뉴 닫기
+document.addEventListener('click', function() { closeViewerMenu(); });
+
+// 뷰어에서 폴더 변경
+var _veItem = null, _veFolders = [];
+function viewerEditFolder() {
+  closeViewerMenu();
+  _veItem = vItems[vIdx];
+  _veFolders = _veItem.folders ? _veItem.folders.slice() : [];
+  var sel = document.getElementById('viewerEditFolderSel');
+  sel.innerHTML = '';
+  allFolders.forEach(function(n) {
+    var b = document.createElement('button');
+    b.className = 'fsel-btn' + (_veFolders.indexOf(n) >= 0 ? ' on' : '');
+    b.textContent = n;
+    b.onclick = function() {
+      var idx = _veFolders.indexOf(n);
+      if (idx >= 0) { _veFolders.splice(idx, 1); b.classList.remove('on'); }
+      else          { _veFolders.push(n);         b.classList.add('on'); }
+    };
+    sel.appendChild(b);
+  });
+  document.getElementById('viewerEditOverlay').classList.add('on');
+}
+function closeViewerEdit() { document.getElementById('viewerEditOverlay').classList.remove('on'); }
+function saveViewerEdit() {
+  if (!_veItem) return;
+  apiFetch('/update', 'POST', { id: _veItem.id, folders: _veFolders },
+    function() {
+      _veItem.folders = _veFolders.slice();
+      toast('수정됐어요 🌸');
+      closeViewerEdit();
+      loadItems(curFolder);
+    },
+    function() { toast('수정 실패'); }
+  );
+}
+
+// 뷰어에서 삭제
+function viewerDeleteItem() {
+  closeViewerMenu();
+  delPending = { item: vItems[vIdx], card: null };
+  document.getElementById('confirmOverlay').classList.add('on');
+}
 
 // ── 삭제 ──────────────────────────────────────────────────────────────────
 function openConfirm(item, card) { delPending = {item:item, card:card}; document.getElementById('confirmOverlay').classList.add('on'); }
@@ -441,12 +543,18 @@ function doDelete() {
   closeConfirm();
   apiFetch('/delete', 'POST', {id:item.id, image_key:item.image_key},
     function() {
-      card.style.transition = 'all .2s'; card.style.opacity = '0'; card.style.transform = 'scale(0.8)';
-      setTimeout(function() { card.remove(); }, 200);
       allItems = allItems.filter(function(i) { return i.id !== item.id; });
+      if (card) {
+        card.style.transition = 'all .2s'; card.style.opacity = '0'; card.style.transform = 'scale(0.8)';
+        setTimeout(function() { card.remove(); }, 200);
+      } else {
+        // 뷰어에서 삭제한 경우
+        closeViewer();
+        setTimeout(function() { loadItems(curFolder); }, 350);
+      }
       toast('삭제했어요');
     },
-    function(e) { toast('삭제 실패'); }
+    function() { toast('삭제 실패'); }
   );
 }
 
