@@ -106,8 +106,10 @@ textarea.finput{resize:none;line-height:1.5}
 .viewer-hdr{display:flex;align-items:center;justify-content:space-between;padding:calc(16px + env(safe-area-inset-top)) 16px 16px}
 .viewer-cnt{font-size:14px;color:rgba(255,255,255,.7)}
 .viewer-hdr-btns{display:flex;gap:4px;align-items:center;position:relative}
-.viewer-x,.viewer-more{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:4px;line-height:1}
+.viewer-x,.viewer-more,.viewer-zoom{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:4px;line-height:1}
 .viewer-more{font-size:22px;letter-spacing:2px}
+.viewer-zoom{font-size:20px}
+.viewer-zoom.on{color:var(--pink-l)}
 .viewer-dropdown{display:none;position:absolute;top:40px;right:0;background:#fff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.25);overflow:hidden;min-width:140px;z-index:10}
 .viewer-dropdown.on{display:block}
 .viewer-dropdown button{display:block;width:100%;padding:13px 16px;border:none;background:none;font-family:inherit;font-size:14px;color:#2D2D2D;cursor:pointer;text-align:left}
@@ -134,6 +136,11 @@ textarea.finput{resize:none;line-height:1.5}
 .folder-sel{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .fsel-btn{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:500;border:1.5px solid #EAEAEA;background:var(--white);color:var(--sub);cursor:pointer;font-family:inherit;transition:all .15s}
 .fsel-btn.on{background:var(--pink-p);border-color:var(--pink);color:var(--pink-d);font-weight:700}
+.folder-manage-list{display:flex;flex-direction:column;gap:8px}
+.folder-manage-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #F4EDF0}
+.folder-manage-name{flex:1;min-width:0;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-btn{border:1.5px solid #EAEAEA;background:var(--white);border-radius:12px;padding:7px 10px;font-family:inherit;font-size:12px;color:var(--sub);cursor:pointer}
+.mini-btn.del{border-color:#FFD1DA;color:#FF4D6D;background:#FFF6F8}
 .file-pick{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border:2px dashed var(--pink-l);border-radius:12px;cursor:pointer;color:var(--pink);font-size:14px;font-weight:500;margin-top:6px}
 .file-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .file-preview img{width:64px;height:64px;object-fit:cover;border-radius:10px}
@@ -173,6 +180,16 @@ textarea.finput{resize:none;line-height:1.5}
 
 </div><!-- app -->
 
+<!-- 폴더 관리 -->
+<div class="overlay" id="folderManageOverlay" onclick="if(event.target===this)closeFolderManage()">
+  <div class="sheet">
+    <button class="sheet-close" onclick="closeFolderManage()">✕</button>
+    <div class="sheet-title">📁 폴더 관리</div>
+    <div class="folder-manage-list" id="folderManageList"></div>
+    <button class="fbtn sub" onclick="addFolderFromManage()">+ 새 폴더 추가</button>
+  </div>
+</div>
+
 <!-- 삭제 확인 -->
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-box">
@@ -191,6 +208,7 @@ textarea.finput{resize:none;line-height:1.5}
   <div class="viewer-hdr">
     <span class="viewer-cnt" id="viewerCnt"></span>
     <div class="viewer-hdr-btns">
+      <button class="viewer-zoom" id="viewerZoomBtn" onclick="viewerDeepZoom(event)">＋</button>
       <button class="viewer-more" onclick="toggleViewerMenu(event)">⋯</button>
       <div class="viewer-dropdown" id="viewerDropdown">
         <button onclick="viewerEditFolder()">✏️ 수정</button>
@@ -290,7 +308,7 @@ var SK = localStorage.getItem('damdam_secret_key') || '';
 var curFolder = 'all', editOn = false, folderOpen = false;
 var allItems = [], allFolders = [], delPending = null;
 var vItems = [], vIdx = 0, tStart = 0, tMove = false;
-var zoom = 1, panX = 0, panY = 0, pinchStart = 0, pinchZoom = 1, lastTap = 0, dragStart = null;
+var zoom = 1, panX = 0, panY = 0, pinchStart = 0, pinchZoom = 1, lastTap = 0, dragStart = null, deepZoomOn = false;
 var addType = 'link', addFolders = [];
 var memoViewItem = null, memoViewCard = null;
 
@@ -330,6 +348,11 @@ function renderPills() {
   add.textContent = '+ 추가';
   add.onclick = function() { addFolderPrompt(); };
   wrap.appendChild(add);
+  var manage = document.createElement('button');
+  manage.className = 'pill add';
+  manage.textContent = '관리';
+  manage.onclick = function() { openFolderManage(); };
+  wrap.appendChild(manage);
 }
 
 function makePill(label, val, wrap) {
@@ -360,9 +383,98 @@ function addFolderPrompt() {
   if (!n || !n.trim()) return;
   n = n.trim();
   if (allFolders.indexOf(n) >= 0) { toast('이미 있는 폴더예요'); return; }
-  allFolders.push(n);
-  renderPills();
-  toast('"' + n + '" 폴더 추가됐어요 🌸');
+  createFolder(n, function() {
+    toast('"' + n + '" 폴더 추가됐어요 🌸');
+  });
+}
+
+function createFolder(name, onDone) {
+  apiFetch('/folder-create', 'POST', { name: name },
+    function() {
+      if (allFolders.indexOf(name) < 0) allFolders.push(name);
+      renderPills();
+      if (onDone) onDone();
+    },
+    function() { toast('폴더 추가 실패'); }
+  );
+}
+
+function openFolderManage() {
+  renderFolderManage();
+  document.getElementById('folderManageOverlay').classList.add('on');
+}
+function closeFolderManage() { document.getElementById('folderManageOverlay').classList.remove('on'); }
+function renderFolderManage() {
+  var list = document.getElementById('folderManageList');
+  list.innerHTML = '';
+  if (!allFolders.length) {
+    list.innerHTML = '<div class="empty" style="padding:28px 10px">폴더가 없어요</div>';
+    return;
+  }
+  allFolders.forEach(function(name) {
+    var row = document.createElement('div');
+    row.className = 'folder-manage-row';
+    row.innerHTML = '<div class="folder-manage-name">' + esc(name) + '</div>';
+    var rename = document.createElement('button');
+    rename.className = 'mini-btn';
+    rename.textContent = '수정';
+    rename.onclick = function() { renameFolderPrompt(name); };
+    var del = document.createElement('button');
+    del.className = 'mini-btn del';
+    del.textContent = '삭제';
+    del.onclick = function() { deleteFolderPrompt(name); };
+    row.appendChild(rename);
+    row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+function addFolderFromManage() {
+  var n = prompt('새 폴더 이름');
+  if (!n || !n.trim()) return;
+  n = n.trim();
+  if (allFolders.indexOf(n) >= 0) { toast('이미 있는 폴더예요'); return; }
+  createFolder(n, function() {
+    renderFolderManage();
+    toast('폴더 추가됐어요');
+  });
+}
+function renameFolderPrompt(oldName) {
+  var n = prompt('새 폴더 이름', oldName);
+  if (!n || !n.trim()) return;
+  n = n.trim();
+  if (n === oldName) return;
+  if (allFolders.indexOf(n) >= 0) { toast('이미 있는 폴더예요'); return; }
+  apiFetch('/folder-rename', 'POST', { oldName: oldName, newName: n },
+    function() {
+      allFolders = allFolders.map(function(f) { return f === oldName ? n : f; });
+      if (curFolder === oldName) {
+        curFolder = n;
+        document.getElementById('folderLabel').textContent = n;
+      }
+      renderPills();
+      renderFolderManage();
+      loadItems(curFolder);
+      toast('폴더 이름을 바꿨어요');
+    },
+    function() { toast('폴더 수정 실패'); }
+  );
+}
+function deleteFolderPrompt(name) {
+  if (!confirm('"' + name + '" 폴더를 삭제할까요?\n해당 폴더 태그가 모든 항목에서 제거됩니다.')) return;
+  apiFetch('/folder-delete', 'POST', { name: name },
+    function() {
+      allFolders = allFolders.filter(function(f) { return f !== name; });
+      if (curFolder === name) {
+        curFolder = 'all';
+        document.getElementById('folderLabel').textContent = '전체';
+      }
+      renderPills();
+      renderFolderManage();
+      loadItems(curFolder);
+      toast('폴더를 삭제했어요');
+    },
+    function() { toast('폴더 삭제 실패'); }
+  );
 }
 
 // ── 아이템 ────────────────────────────────────────────────────────────────
@@ -548,7 +660,8 @@ function applyZoom() {
   img.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
 }
 function resetZoom() {
-  zoom = 1; panX = 0; panY = 0; pinchStart = 0; pinchZoom = 1; dragStart = null; tMove = false;
+  zoom = 1; panX = 0; panY = 0; pinchStart = 0; pinchZoom = 1; dragStart = null; tMove = false; deepZoomOn = false;
+  document.getElementById('viewerZoomBtn').classList.remove('on');
   document.querySelectorAll('.viewer-img').forEach(function(img) { img.style.transform = ''; });
 }
 function touchDistance(a, b) {
@@ -556,7 +669,24 @@ function touchDistance(a, b) {
   return Math.sqrt(dx * dx + dy * dy);
 }
 function clampZoom(v) {
-  return Math.max(1, Math.min(4, v));
+  return Math.max(1, Math.min(deepZoomOn ? 12 : fitWidthZoom(), v));
+}
+function fitWidthZoom() {
+  var img = currentViewerImg();
+  var wrap = document.getElementById('viewerWrap');
+  if (!img || !wrap) return 3;
+  var w = img.getBoundingClientRect().width || 1;
+  var target = wrap.clientWidth / w;
+  return Math.max(1, target);
+}
+function viewerDeepZoom(e) {
+  if (e) e.stopPropagation();
+  closeViewerMenu();
+  deepZoomOn = true;
+  document.getElementById('viewerZoomBtn').classList.add('on');
+  zoom = zoom <= fitWidthZoom() + 0.05 ? Math.max(3, fitWidthZoom() * 1.8) : Math.min(12, zoom * 1.5);
+  panX = 0; panY = 0;
+  applyZoom();
 }
 function viewerTouchStart(e) {
   closeViewerMenu();
@@ -589,7 +719,9 @@ function viewerTouchEnd(e) {
   if (e.touches.length) return;
   var now = Date.now();
   if (!tMove && now - lastTap < 280) {
-    zoom = zoom > 1 ? 1 : 2.5;
+    zoom = zoom > 1 ? 1 : fitWidthZoom();
+    deepZoomOn = false;
+    document.getElementById('viewerZoomBtn').classList.remove('on');
     panX = 0; panY = 0;
     applyZoom();
     lastTap = 0;
@@ -660,6 +792,21 @@ function renderViewerEditFolders() {
     };
     sel.appendChild(b);
   });
+  var add = document.createElement('button');
+  add.className = 'fsel-btn';
+  add.textContent = '+ 폴더 추가';
+  add.onclick = function() {
+    var n = prompt('새 폴더 이름');
+    if (!n || !n.trim()) return;
+    n = n.trim();
+    if (allFolders.indexOf(n) >= 0) { toast('이미 있는 폴더예요'); return; }
+    createFolder(n, function() {
+      _veFolders.push(n);
+      renderViewerEditFolders();
+      toast('폴더 추가됐어요');
+    });
+  };
+  sel.appendChild(add);
 }
 function closeViewerEdit() { document.getElementById('viewerEditOverlay').classList.remove('on'); }
 function saveViewerEdit() {
