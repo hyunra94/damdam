@@ -141,6 +141,7 @@ textarea.finput{resize:none;line-height:1.5}
 .folder-manage-name{flex:1;min-width:0;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mini-btn{border:1.5px solid #EAEAEA;background:var(--white);border-radius:12px;padding:7px 10px;font-family:inherit;font-size:12px;color:var(--sub);cursor:pointer}
 .mini-btn.del{border-color:#FFD1DA;color:#FF4D6D;background:#FFF6F8}
+.mini-btn:disabled{opacity:.35;cursor:not-allowed}
 .file-pick{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border:2px dashed var(--pink-l);border-radius:12px;cursor:pointer;color:var(--pink);font-size:14px;font-weight:500;margin-top:6px}
 .file-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .file-preview img{width:64px;height:64px;object-fit:cover;border-radius:10px}
@@ -411,10 +412,20 @@ function renderFolderManage() {
     list.innerHTML = '<div class="empty" style="padding:28px 10px">폴더가 없어요</div>';
     return;
   }
-  allFolders.forEach(function(name) {
+  allFolders.forEach(function(name, idx) {
     var row = document.createElement('div');
     row.className = 'folder-manage-row';
     row.innerHTML = '<div class="folder-manage-name">' + esc(name) + '</div>';
+    var up = document.createElement('button');
+    up.className = 'mini-btn';
+    up.textContent = '↑';
+    up.disabled = idx === 0;
+    up.onclick = function() { moveFolder(idx, -1); };
+    var down = document.createElement('button');
+    down.className = 'mini-btn';
+    down.textContent = '↓';
+    down.disabled = idx === allFolders.length - 1;
+    down.onclick = function() { moveFolder(idx, 1); };
     var rename = document.createElement('button');
     rename.className = 'mini-btn';
     rename.textContent = '수정';
@@ -423,10 +434,32 @@ function renderFolderManage() {
     del.className = 'mini-btn del';
     del.textContent = '삭제';
     del.onclick = function() { deleteFolderPrompt(name); };
+    row.appendChild(up);
+    row.appendChild(down);
     row.appendChild(rename);
     row.appendChild(del);
     list.appendChild(row);
   });
+}
+function moveFolder(idx, dir) {
+  var nextIdx = idx + dir;
+  if (nextIdx < 0 || nextIdx >= allFolders.length) return;
+  var next = allFolders.slice();
+  var tmp = next[idx];
+  next[idx] = next[nextIdx];
+  next[nextIdx] = tmp;
+  saveFolderOrder(next);
+}
+function saveFolderOrder(nextFolders) {
+  apiFetch('/folder-reorder', 'POST', { folders: nextFolders },
+    function() {
+      allFolders = nextFolders.slice();
+      renderPills();
+      renderFolderManage();
+      toast('폴더 순서를 바꿨어요');
+    },
+    function() { toast('순서 변경 실패'); }
+  );
 }
 function addFolderFromManage() {
   var n = prompt('새 폴더 이름');
