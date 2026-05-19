@@ -137,7 +137,10 @@ textarea.finput{resize:none;line-height:1.5}
 .fsel-btn{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:500;border:1.5px solid #EAEAEA;background:var(--white);color:var(--sub);cursor:pointer;font-family:inherit;transition:all .15s}
 .fsel-btn.on{background:var(--pink-p);border-color:var(--pink);color:var(--pink-d);font-weight:700}
 .folder-manage-list{display:flex;flex-direction:column;gap:8px}
-.folder-manage-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #F4EDF0}
+.folder-manage-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #F4EDF0;transition:transform .12s,background .12s}
+.folder-manage-row.dragging{background:var(--pink-p);border-radius:12px;padding-left:8px;padding-right:8px;box-shadow:var(--sh);transform:scale(1.02)}
+.drag-handle{width:34px;height:34px;border:none;background:none;border-radius:50%;font-size:20px;color:#C9A7B4;cursor:grab;display:flex;align-items:center;justify-content:center;touch-action:none}
+.drag-handle.active{color:var(--pink-d);background:var(--pink-p)}
 .folder-manage-name{flex:1;min-width:0;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mini-btn{border:1.5px solid #EAEAEA;background:var(--white);border-radius:12px;padding:7px 10px;font-family:inherit;font-size:12px;color:var(--sub);cursor:pointer}
 .mini-btn.del{border-color:#FFD1DA;color:#FF4D6D;background:#FFF6F8}
@@ -312,6 +315,7 @@ var vItems = [], vIdx = 0, tStart = 0, tMove = false;
 var zoom = 1, panX = 0, panY = 0, pinchStart = 0, pinchZoom = 1, lastTap = 0, dragStart = null, deepZoomOn = false;
 var addType = 'link', addFolders = [];
 var memoViewItem = null, memoViewCard = null;
+var folderDrag = { active:false, idx:-1, moved:false, timer:null };
 
 // ── 시작 ──────────────────────────────────────────────────────────────────
 window.onload = function() {
@@ -415,17 +419,13 @@ function renderFolderManage() {
   allFolders.forEach(function(name, idx) {
     var row = document.createElement('div');
     row.className = 'folder-manage-row';
+    row.dataset.idx = idx;
+    var handle = document.createElement('button');
+    handle.className = 'drag-handle';
+    handle.textContent = '☰';
+    handle.onmousedown = function(e) { startFolderLongPress(e, idx); };
+    handle.ontouchstart = function(e) { startFolderLongPress(e, idx); };
     row.innerHTML = '<div class="folder-manage-name">' + esc(name) + '</div>';
-    var up = document.createElement('button');
-    up.className = 'mini-btn';
-    up.textContent = '↑';
-    up.disabled = idx === 0;
-    up.onclick = function() { moveFolder(idx, -1); };
-    var down = document.createElement('button');
-    down.className = 'mini-btn';
-    down.textContent = '↓';
-    down.disabled = idx === allFolders.length - 1;
-    down.onclick = function() { moveFolder(idx, 1); };
     var rename = document.createElement('button');
     rename.className = 'mini-btn';
     rename.textContent = '수정';
@@ -434,21 +434,86 @@ function renderFolderManage() {
     del.className = 'mini-btn del';
     del.textContent = '삭제';
     del.onclick = function() { deleteFolderPrompt(name); };
-    row.appendChild(up);
-    row.appendChild(down);
+    row.insertBefore(handle, row.firstChild);
     row.appendChild(rename);
     row.appendChild(del);
     list.appendChild(row);
   });
+  markDraggingRow();
 }
-function moveFolder(idx, dir) {
-  var nextIdx = idx + dir;
-  if (nextIdx < 0 || nextIdx >= allFolders.length) return;
+function startFolderLongPress(e, idx) {
+  e.preventDefault();
+  clearFolderDragTimer();
+  folderDrag.idx = idx;
+  folderDrag.moved = false;
+  folderDrag.timer = setTimeout(function() {
+    beginFolderDrag(idx);
+  }, 350);
+  document.addEventListener('mouseup', cancelFolderLongPress, { once:true });
+  document.addEventListener('touchend', cancelFolderLongPress, { once:true });
+  document.addEventListener('touchmove', cancelFolderLongPressOnMove, { once:true, passive:false });
+}
+function clearFolderDragTimer() {
+  if (folderDrag.timer) clearTimeout(folderDrag.timer);
+  folderDrag.timer = null;
+}
+function cancelFolderLongPress() {
+  if (!folderDrag.active) clearFolderDragTimer();
+}
+function cancelFolderLongPressOnMove(e) {
+  if (!folderDrag.active) clearFolderDragTimer();
+}
+function beginFolderDrag(idx) {
+  folderDrag.active = true;
+  folderDrag.idx = idx;
+  markDraggingRow();
+  document.addEventListener('mousemove', folderDragMove);
+  document.addEventListener('touchmove', folderDragMove, { passive:false });
+  document.addEventListener('mouseup', folderDragEnd);
+  document.addEventListener('touchend', folderDragEnd);
+}
+function markDraggingRow() {
+  document.querySelectorAll('.folder-manage-row').forEach(function(row) {
+    var on = folderDrag.active && Number(row.dataset.idx) === folderDrag.idx;
+    row.classList.toggle('dragging', on);
+    var h = row.querySelector('.drag-handle');
+    if (h) h.classList.toggle('active', on);
+  });
+}
+function folderDragMove(e) {
+  if (!folderDrag.active) return;
+  if (e.cancelable) e.preventDefault();
+  var y = e.touches ? e.touches[0].clientY : e.clientY;
+  var rows = Array.from(document.querySelectorAll('.folder-manage-row'));
+  var targetIdx = folderDrag.idx;
+  rows.forEach(function(row, i) {
+    var r = row.getBoundingClientRect();
+    if (y > r.top + r.height / 2) targetIdx = i;
+  });
+  if (targetIdx !== folderDrag.idx) {
+    moveFolderTo(folderDrag.idx, targetIdx);
+    folderDrag.idx = targetIdx;
+    folderDrag.moved = true;
+    renderFolderManage();
+  }
+}
+function folderDragEnd() {
+  clearFolderDragTimer();
+  document.removeEventListener('mousemove', folderDragMove);
+  document.removeEventListener('touchmove', folderDragMove);
+  document.removeEventListener('mouseup', folderDragEnd);
+  document.removeEventListener('touchend', folderDragEnd);
+  var shouldSave = folderDrag.active && folderDrag.moved;
+  folderDrag.active = false;
+  markDraggingRow();
+  if (shouldSave) saveFolderOrder(allFolders);
+}
+function moveFolderTo(idx, nextIdx) {
+  if (nextIdx < 0 || nextIdx >= allFolders.length || idx === nextIdx) return;
   var next = allFolders.slice();
-  var tmp = next[idx];
-  next[idx] = next[nextIdx];
-  next[nextIdx] = tmp;
-  saveFolderOrder(next);
+  var item = next.splice(idx, 1)[0];
+  next.splice(nextIdx, 0, item);
+  allFolders = next;
 }
 function saveFolderOrder(nextFolders) {
   apiFetch('/folder-reorder', 'POST', { folders: nextFolders },
