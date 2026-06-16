@@ -382,6 +382,25 @@
 const WORKER_URL = localStorage.getItem('damdam_worker_url') || '';
 const SECRET_KEY = localStorage.getItem('damdam_secret_key') || '';
 
+// 공유 데이터 캐시 키
+// - 새 sw.js 안정화 버전: 절대 URL 키 사용
+// - 기존 sw.js: 'pending', 'file-0' 같은 짧은 키 사용
+// 둘 다 읽을 수 있게 하위호환 처리
+const SHARE_SCOPE_BASE = new URL('./', location.href).href;
+const SHARE_DATA_KEY = new URL('__damdam_share_pending__', SHARE_SCOPE_BASE).href;
+
+function shareFileKey(i) {
+  return new URL(`__damdam_share_file_${i}__`, SHARE_SCOPE_BASE).href;
+}
+
+async function matchFirst(cache, keys) {
+  for (const key of keys) {
+    const res = await cache.match(key);
+    if (res) return { res, key };
+  }
+  return { res: null, key: null };
+}
+
 let shareData = null;
 let sharedFiles = [];
 let selectedFolders = [];
@@ -401,32 +420,48 @@ function init() {
 async function loadShareData() {
   try {
     const cache = await caches.open('damdam-share-data');
-    const res = await cache.match('pending');
 
-    if (!res) {
+    // 새 sw.js 키와 기존 sw.js 키를 모두 확인
+    const matched = await matchFirst(cache, [
+      SHARE_DATA_KEY,
+      'pending',
+      new URL('pending', SHARE_SCOPE_BASE).href
+    ]);
+
+    if (!matched.res) {
+      // 일부 환경에서 GET 파라미터로 들어오는 경우 대비
       const p = new URLSearchParams(location.search);
+      const title = p.get('title') || '';
+      const text  = p.get('text')  || '';
+      let url     = p.get('url')   || '';
 
-      if (p.get('url') || p.get('text')) {
+      // 일부 앱은 url 필드가 아니라 text 안에 링크를 넣어 공유함
+      if (!url && text) {
+        const m = String(text).match(/https?:\/\/[^\s]+/);
+        if (m) url = m[0];
+      }
+
+      if (url || text || title) {
         shareData = {
-          type: p.get('url') ? 'link' : 'memo',
-          title: p.get('title') || '',
-          url: p.get('url') || '',
-          text: p.get('text') || ''
+          type: url ? 'link' : 'memo',
+          title: title,
+          url: url,
+          text: text
         };
       }
     } else {
-      shareData = await res.json();
-      await cache.delete('pending');
+      shareData = await matched.res.json();
+      await cache.delete(matched.key);
     }
   } catch (e) {
     console.error('공유 데이터 읽기 실패:', e);
   }
 
   if (!shareData) {
-    showToast('공유 데이터를 찾지 못했어요.');
+    showToast('공유 데이터를 찾지 못했어요. 다시 공유해보세요.');
     setTimeout(function() {
       location.href = 'index.html';
-    }, 1200);
+    }, 1400);
     return;
   }
 
@@ -435,7 +470,14 @@ async function loadShareData() {
       const fileCache = await caches.open('damdam-share-files');
 
       for (let i = 0; i < shareData.fileCount; i++) {
-        const fileRes = await fileCache.match(`file-${i}`);
+        // 새 sw.js 파일 키와 기존 sw.js 파일 키를 모두 확인
+        const matchedFile = await matchFirst(fileCache, [
+          shareFileKey(i),
+          `file-${i}`,
+          new URL(`file-${i}`, SHARE_SCOPE_BASE).href
+        ]);
+
+        const fileRes = matchedFile.res;
 
         if (fileRes) {
           const blob = await fileRes.blob();
@@ -454,7 +496,7 @@ async function loadShareData() {
       }
 
       const keys = await fileCache.keys();
-      keys.forEach(k => fileCache.delete(k));
+      await Promise.all(keys.map(k => fileCache.delete(k)));
     } catch (e) {
       console.error('이미지 파일 읽기 실패:', e);
     }
@@ -679,6 +721,11 @@ async function saveShare() {
   }
 
   if (shareData.type === 'image') {
+    if (!sharedFiles.length) {
+      onError('이미지 파일을 읽지 못했어요. 다시 공유해보세요.');
+      return;
+    }
+
     const fd = new FormData();
 
     sharedFiles.forEach(function(f) {
@@ -700,7 +747,13 @@ async function saveShare() {
 
     xhr.onload = function() {
       try {
-        const d = JSON.parse(xhr.responseText);
+        const d = JSON.parse(xhr.responseText || '{}');
+
+        if (xhr.status < 200 || xhr.status >= 300) {
+          onError(d.error || `HTTP ${xhr.status}`);
+          return;
+        }
+
         handleResult(d);
       } catch (e) {
         onError(`HTTP ${xhr.status || ''} ${e.message || ''}`);
@@ -740,7 +793,13 @@ async function saveShare() {
 
     xhr2.onload = function() {
       try {
-        const d = JSON.parse(xhr2.responseText);
+        const d = JSON.parse(xhr2.responseText || '{}');
+
+        if (xhr2.status < 200 || xhr2.status >= 300) {
+          onError(d.error || `HTTP ${xhr2.status}`);
+          return;
+        }
+
         handleResult(d);
       } catch (e) {
         onError(`HTTP ${xhr2.status || ''} ${e.message || ''}`);
