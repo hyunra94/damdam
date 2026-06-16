@@ -2,7 +2,7 @@
   "name": "담담",
   "short_name": "담담",
   "description": "링크, 이미지, 메모를 폴더별로 담아두기",
-  "start_url": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
@@ -17,7 +17,7 @@
     }
   ],
   "share_target": {
-    "action": "share",
+    "action": "./share",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {
