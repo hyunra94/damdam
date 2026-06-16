@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>담담</title>
 <link rel="icon" href="./favicon.png">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="./manifest.json?v=20260616-405fix">
 <meta name="theme-color" content="#FF8FAB">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -22,7 +22,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#EEE5EE;min-height:100dvh;
 .hbtn{width:38px;height:38px;border-radius:50%;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
 /* 폴더 */
-.folder-bar{position:sticky;top:calc(66px + env(safe-area-inset-top));z-index:9;background:var(--white);border-bottom:1px solid #F0E8EC}
+.folder-bar{background:var(--white);border-bottom:1px solid #F0E8EC}
 .folder-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;user-select:none}
 .folder-label{font-size:14px;font-weight:700;color:var(--pink-d);display:flex;align-items:center;gap:8px}
 .folder-arrow{font-size:12px;color:var(--sub);transition:transform .2s}
@@ -74,8 +74,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:#EEE5EE;min-height:100dvh;
 /* 모달 공통 */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;align-items:flex-end;justify-content:center}
 .overlay.on{display:flex}
-.overlay.viewer-edit{z-index:150}
-.overlay.memo-view{z-index:80}
 .sheet{width:100%;max-width:480px;background:var(--white);border-radius:24px 24px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));position:relative;animation:su .25s ease;max-height:85dvh;overflow-y:auto}
 @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .sheet-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:16px}
@@ -84,14 +82,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:#EEE5EE;min-height:100dvh;
 .flabel:first-of-type{margin-top:0}
 .finput{width:100%;border:1.5px solid #EAEAEA;border-radius:12px;padding:11px 14px;font-family:inherit;font-size:14px;color:var(--text);outline:none;transition:border-color .15s}
 .finput:focus{border-color:var(--pink)}
-.finput.readonly{background:#F8F8F8;color:var(--sub)}
 textarea.finput{resize:none;line-height:1.5}
 .fbtn{width:100%;padding:14px;background:var(--pink);border:none;border-radius:14px;font-family:inherit;font-size:16px;font-weight:700;color:#fff;cursor:pointer;margin-top:16px}
 .fbtn.sub{background:none;border:1.5px solid #EAEAEA;color:var(--sub);font-size:14px;padding:12px;margin-top:8px}
 .fbtn:disabled{background:#CCC;cursor:not-allowed}
 
 /* 삭제 확인 */
-.confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:160;align-items:center;justify-content:center}
+.confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60;align-items:center;justify-content:center}
 .confirm-overlay.on{display:flex}
 .confirm-box{background:var(--white);border-radius:24px;padding:32px 28px 24px;width:calc(100% - 60px);max-width:320px;text-align:center;animation:pop .2s cubic-bezier(.34,1.56,.64,1)}
 @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
@@ -106,28 +103,20 @@ textarea.finput{resize:none;line-height:1.5}
 .viewer-hdr{display:flex;align-items:center;justify-content:space-between;padding:calc(16px + env(safe-area-inset-top)) 16px 16px}
 .viewer-cnt{font-size:14px;color:rgba(255,255,255,.7)}
 .viewer-hdr-btns{display:flex;gap:4px;align-items:center;position:relative}
-.viewer-x,.viewer-more,.viewer-zoom{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:4px;line-height:1}
+.viewer-x,.viewer-more{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:4px;line-height:1}
 .viewer-more{font-size:22px;letter-spacing:2px}
-.viewer-zoom{font-size:20px}
-.viewer-zoom.on{color:var(--pink-l)}
 .viewer-dropdown{display:none;position:absolute;top:40px;right:0;background:#fff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.25);overflow:hidden;min-width:140px;z-index:10}
 .viewer-dropdown.on{display:block}
 .viewer-dropdown button{display:block;width:100%;padding:13px 16px;border:none;background:none;font-family:inherit;font-size:14px;color:#2D2D2D;cursor:pointer;text-align:left}
 .viewer-dropdown button:active{background:#F5F5F5}
 .viewer-dropdown button+button{border-top:1px solid #F0F0F0}
-.viewer-wrap{flex:1;overflow:hidden;touch-action:none}
+.viewer-wrap{flex:1;overflow:hidden}
 .viewer-track{display:flex;height:100%;transition:transform .3s cubic-bezier(.25,.8,.25,1)}
 .viewer-slide{flex-shrink:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:0 8px}
-.viewer-slide img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;transform-origin:center center;transition:transform .15s ease;will-change:transform}
+.viewer-slide img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
 .viewer-dots{display:flex;justify-content:center;gap:6px;padding:12px 0 calc(12px + env(safe-area-inset-bottom))}
 .vdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);transition:all .2s}
 .vdot.on{background:#fff;width:18px;border-radius:3px}
-
-/* 메모 보기 */
-.memo-full-view{font-size:15px;color:var(--text);line-height:1.75;white-space:pre-wrap;word-break:break-word;max-height:45dvh;overflow-y:auto;background:var(--pink-p);border-radius:14px;padding:14px}
-.memo-actions{display:flex;gap:10px;margin-top:16px}
-.memo-actions .fbtn{margin-top:0}
-.memo-actions .fbtn.del{background:#FF4D6D}
 
 /* 추가모달 탭 */
 .type-tabs{display:flex;gap:8px;margin-bottom:16px}
@@ -136,15 +125,6 @@ textarea.finput{resize:none;line-height:1.5}
 .folder-sel{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .fsel-btn{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:500;border:1.5px solid #EAEAEA;background:var(--white);color:var(--sub);cursor:pointer;font-family:inherit;transition:all .15s}
 .fsel-btn.on{background:var(--pink-p);border-color:var(--pink);color:var(--pink-d);font-weight:700}
-.folder-manage-list{display:flex;flex-direction:column;gap:8px}
-.folder-manage-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #F4EDF0;transition:transform .12s,background .12s}
-.folder-manage-row.dragging{background:var(--pink-p);border-radius:12px;padding-left:8px;padding-right:8px;box-shadow:var(--sh);transform:scale(1.02)}
-.drag-handle{width:34px;height:34px;border:none;background:none;border-radius:50%;font-size:20px;color:#C9A7B4;cursor:grab;display:flex;align-items:center;justify-content:center;touch-action:none}
-.drag-handle.active{color:var(--pink-d);background:var(--pink-p)}
-.folder-manage-name{flex:1;min-width:0;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mini-btn{border:1.5px solid #EAEAEA;background:var(--white);border-radius:12px;padding:7px 10px;font-family:inherit;font-size:12px;color:var(--sub);cursor:pointer}
-.mini-btn.del{border-color:#FFD1DA;color:#FF4D6D;background:#FFF6F8}
-.mini-btn:disabled{opacity:.35;cursor:not-allowed}
 .file-pick{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border:2px dashed var(--pink-l);border-radius:12px;cursor:pointer;color:var(--pink);font-size:14px;font-weight:500;margin-top:6px}
 .file-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .file-preview img{width:64px;height:64px;object-fit:cover;border-radius:10px}
@@ -184,16 +164,6 @@ textarea.finput{resize:none;line-height:1.5}
 
 </div><!-- app -->
 
-<!-- 폴더 관리 -->
-<div class="overlay" id="folderManageOverlay" onclick="if(event.target===this)closeFolderManage()">
-  <div class="sheet">
-    <button class="sheet-close" onclick="closeFolderManage()">✕</button>
-    <div class="sheet-title">📁 폴더 관리</div>
-    <div class="folder-manage-list" id="folderManageList"></div>
-    <button class="fbtn sub" onclick="addFolderFromManage()">+ 새 폴더 추가</button>
-  </div>
-</div>
-
 <!-- 삭제 확인 -->
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-box">
@@ -212,10 +182,9 @@ textarea.finput{resize:none;line-height:1.5}
   <div class="viewer-hdr">
     <span class="viewer-cnt" id="viewerCnt"></span>
     <div class="viewer-hdr-btns">
-      <button class="viewer-zoom" id="viewerZoomBtn" onclick="viewerDeepZoom(event)">＋</button>
       <button class="viewer-more" onclick="toggleViewerMenu(event)">⋯</button>
       <div class="viewer-dropdown" id="viewerDropdown">
-        <button onclick="viewerEditFolder()">✏️ 수정</button>
+        <button onclick="viewerEditFolder()">✏️ 폴더 변경</button>
         <button onclick="viewerDeleteItem()">🗑️ 삭제</button>
       </div>
       <button class="viewer-x" onclick="closeViewer()">✕</button>
@@ -227,32 +196,13 @@ textarea.finput{resize:none;line-height:1.5}
   <div class="viewer-dots" id="viewerDots"></div>
 </div>
 
-<!-- 메모 보기 -->
-<div class="overlay memo-view" id="memoViewOverlay" onclick="if(event.target===this)closeMemoView()">
-  <div class="sheet">
-    <button class="sheet-close" onclick="closeMemoView()">✕</button>
-    <div class="sheet-title">📝 메모</div>
-    <div class="memo-full-view" id="memoViewText"></div>
-    <div class="flabel">폴더</div>
-    <div class="folder-sel" id="memoViewFolders"></div>
-    <div class="memo-actions">
-      <button class="fbtn sub" onclick="memoViewEdit()">수정</button>
-      <button class="fbtn del" onclick="memoViewDelete()">삭제</button>
-    </div>
-  </div>
-</div>
-
-<!-- 뷰어 수정 시트 -->
-<div class="overlay viewer-edit" id="viewerEditOverlay" onclick="if(event.target===this)closeViewerEdit()">
+<!-- 뷰어 폴더 변경 시트 -->
+<div class="overlay" id="viewerEditOverlay" onclick="if(event.target===this)closeViewerEdit()">
   <div class="sheet">
     <button class="sheet-close" onclick="closeViewerEdit()">✕</button>
-    <div class="sheet-title">✏️ 수정</div>
-    <div class="flabel">파일명</div>
-    <input class="finput readonly" id="viewerEditTitle" readonly>
+    <div class="sheet-title">✏️ 폴더 변경</div>
     <div class="flabel">폴더</div>
     <div class="folder-sel" id="viewerEditFolderSel"></div>
-    <div class="flabel">메모</div>
-    <textarea class="finput" id="viewerEditMemo" rows="3" placeholder="메모를 입력하세요"></textarea>
     <button class="fbtn" onclick="saveViewerEdit()">저장</button>
   </div>
 </div>
@@ -311,17 +261,38 @@ var WU = localStorage.getItem('damdam_worker_url') || '';
 var SK = localStorage.getItem('damdam_secret_key') || '';
 var curFolder = 'all', editOn = false, folderOpen = false;
 var allItems = [], allFolders = [], delPending = null;
-var vItems = [], vIdx = 0, tStart = 0, tMove = false;
-var zoom = 1, panX = 0, panY = 0, pinchStart = 0, pinchZoom = 1, lastTap = 0, dragStart = null, deepZoomOn = false;
+var vItems = [], vIdx = 0, tStart = 0;
 var addType = 'link', addFolders = [];
-var memoViewItem = null, memoViewCard = null;
-var folderDrag = { active:false, idx:-1, moved:false, timer:null };
+
+// ── 공유 대상 Service Worker 등록 ─────────────────────────────────────────
+async function registerShareServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+
+  try {
+    // v 파라미터와 updateViaCache:none으로 모바일 크롬/설치앱에 남은 구버전 SW 캐시를 강제로 갱신
+    var reg = await navigator.serviceWorker.register('./sw.js?v=20260616-405fix', {
+      scope: './',
+      updateViaCache: 'none'
+    });
+
+    // 이미 설치된 PWA에서도 최신 SW를 즉시 확인
+    if (reg && reg.update) await reg.update();
+    await navigator.serviceWorker.ready;
+
+    // 첫 등록 직후 아직 controller가 없으면 다음 제어 시작 시 한 번 새로고침
+    if (!navigator.serviceWorker.controller) {
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        location.reload();
+      }, { once: true });
+    }
+  } catch (e) {
+    console.error('Service Worker 등록 실패:', e);
+  }
+}
 
 // ── 시작 ──────────────────────────────────────────────────────────────────
 window.onload = function() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(function(){});
-  }
+  registerShareServiceWorker();
   if (!WU || !SK) {
     showGrid('<div class="empty"><div class="eico">⚙️</div><div class="etit">설정이 필요해요</div><div class="esub">우측 상단 ⚙️를 눌러주세요</div></div>');
     openSettings();
@@ -353,11 +324,6 @@ function renderPills() {
   add.textContent = '+ 추가';
   add.onclick = function() { addFolderPrompt(); };
   wrap.appendChild(add);
-  var manage = document.createElement('button');
-  manage.className = 'pill add';
-  manage.textContent = '관리';
-  manage.onclick = function() { openFolderManage(); };
-  wrap.appendChild(manage);
 }
 
 function makePill(label, val, wrap) {
@@ -388,191 +354,9 @@ function addFolderPrompt() {
   if (!n || !n.trim()) return;
   n = n.trim();
   if (allFolders.indexOf(n) >= 0) { toast('이미 있는 폴더예요'); return; }
-  createFolder(n, function() {
-    toast('"' + n + '" 폴더 추가됐어요 🌸');
-  });
-}
-
-function createFolder(name, onDone) {
-  apiFetch('/folder-create', 'POST', { name: name },
-    function() {
-      if (allFolders.indexOf(name) < 0) allFolders.push(name);
-      renderPills();
-      if (onDone) onDone();
-    },
-    function() { toast('폴더 추가 실패'); }
-  );
-}
-
-function openFolderManage() {
-  renderFolderManage();
-  document.getElementById('folderManageOverlay').classList.add('on');
-}
-function closeFolderManage() { document.getElementById('folderManageOverlay').classList.remove('on'); }
-function renderFolderManage() {
-  var list = document.getElementById('folderManageList');
-  list.innerHTML = '';
-  if (!allFolders.length) {
-    list.innerHTML = '<div class="empty" style="padding:28px 10px">폴더가 없어요</div>';
-    return;
-  }
-  allFolders.forEach(function(name, idx) {
-    var row = document.createElement('div');
-    row.className = 'folder-manage-row';
-    row.dataset.idx = idx;
-    var handle = document.createElement('button');
-    handle.className = 'drag-handle';
-    handle.textContent = '☰';
-    handle.onmousedown = function(e) { startFolderLongPress(e, idx); };
-    handle.ontouchstart = function(e) { startFolderLongPress(e, idx); };
-    row.innerHTML = '<div class="folder-manage-name">' + esc(name) + '</div>';
-    var rename = document.createElement('button');
-    rename.className = 'mini-btn';
-    rename.textContent = '수정';
-    rename.onclick = function() { renameFolderPrompt(name); };
-    var del = document.createElement('button');
-    del.className = 'mini-btn del';
-    del.textContent = '삭제';
-    del.onclick = function() { deleteFolderPrompt(name); };
-    row.insertBefore(handle, row.firstChild);
-    row.appendChild(rename);
-    row.appendChild(del);
-    list.appendChild(row);
-  });
-  markDraggingRow();
-}
-function startFolderLongPress(e, idx) {
-  e.preventDefault();
-  clearFolderDragTimer();
-  folderDrag.idx = idx;
-  folderDrag.moved = false;
-  folderDrag.timer = setTimeout(function() {
-    beginFolderDrag(idx);
-  }, 350);
-  document.addEventListener('mouseup', cancelFolderLongPress, { once:true });
-  document.addEventListener('touchend', cancelFolderLongPress, { once:true });
-  document.addEventListener('touchmove', cancelFolderLongPressOnMove, { once:true, passive:false });
-}
-function clearFolderDragTimer() {
-  if (folderDrag.timer) clearTimeout(folderDrag.timer);
-  folderDrag.timer = null;
-}
-function cancelFolderLongPress() {
-  if (!folderDrag.active) clearFolderDragTimer();
-}
-function cancelFolderLongPressOnMove(e) {
-  if (!folderDrag.active) clearFolderDragTimer();
-}
-function beginFolderDrag(idx) {
-  folderDrag.active = true;
-  folderDrag.idx = idx;
-  markDraggingRow();
-  document.addEventListener('mousemove', folderDragMove);
-  document.addEventListener('touchmove', folderDragMove, { passive:false });
-  document.addEventListener('mouseup', folderDragEnd);
-  document.addEventListener('touchend', folderDragEnd);
-}
-function markDraggingRow() {
-  document.querySelectorAll('.folder-manage-row').forEach(function(row) {
-    var on = folderDrag.active && Number(row.dataset.idx) === folderDrag.idx;
-    row.classList.toggle('dragging', on);
-    var h = row.querySelector('.drag-handle');
-    if (h) h.classList.toggle('active', on);
-  });
-}
-function folderDragMove(e) {
-  if (!folderDrag.active) return;
-  if (e.cancelable) e.preventDefault();
-  var y = e.touches ? e.touches[0].clientY : e.clientY;
-  var rows = Array.from(document.querySelectorAll('.folder-manage-row'));
-  var targetIdx = folderDrag.idx;
-  rows.forEach(function(row, i) {
-    var r = row.getBoundingClientRect();
-    if (y > r.top + r.height / 2) targetIdx = i;
-  });
-  if (targetIdx !== folderDrag.idx) {
-    moveFolderTo(folderDrag.idx, targetIdx);
-    folderDrag.idx = targetIdx;
-    folderDrag.moved = true;
-    renderFolderManage();
-  }
-}
-function folderDragEnd() {
-  clearFolderDragTimer();
-  document.removeEventListener('mousemove', folderDragMove);
-  document.removeEventListener('touchmove', folderDragMove);
-  document.removeEventListener('mouseup', folderDragEnd);
-  document.removeEventListener('touchend', folderDragEnd);
-  var shouldSave = folderDrag.active && folderDrag.moved;
-  folderDrag.active = false;
-  markDraggingRow();
-  if (shouldSave) saveFolderOrder(allFolders);
-}
-function moveFolderTo(idx, nextIdx) {
-  if (nextIdx < 0 || nextIdx >= allFolders.length || idx === nextIdx) return;
-  var next = allFolders.slice();
-  var item = next.splice(idx, 1)[0];
-  next.splice(nextIdx, 0, item);
-  allFolders = next;
-}
-function saveFolderOrder(nextFolders) {
-  apiFetch('/folder-reorder', 'POST', { folders: nextFolders },
-    function() {
-      allFolders = nextFolders.slice();
-      renderPills();
-      renderFolderManage();
-      toast('폴더 순서를 바꿨어요');
-    },
-    function() { toast('순서 변경 실패'); }
-  );
-}
-function addFolderFromManage() {
-  var n = prompt('새 폴더 이름');
-  if (!n || !n.trim()) return;
-  n = n.trim();
-  if (allFolders.indexOf(n) >= 0) { toast('이미 있는 폴더예요'); return; }
-  createFolder(n, function() {
-    renderFolderManage();
-    toast('폴더 추가됐어요');
-  });
-}
-function renameFolderPrompt(oldName) {
-  var n = prompt('새 폴더 이름', oldName);
-  if (!n || !n.trim()) return;
-  n = n.trim();
-  if (n === oldName) return;
-  if (allFolders.indexOf(n) >= 0) { toast('이미 있는 폴더예요'); return; }
-  apiFetch('/folder-rename', 'POST', { oldName: oldName, newName: n },
-    function() {
-      allFolders = allFolders.map(function(f) { return f === oldName ? n : f; });
-      if (curFolder === oldName) {
-        curFolder = n;
-        document.getElementById('folderLabel').textContent = n;
-      }
-      renderPills();
-      renderFolderManage();
-      loadItems(curFolder);
-      toast('폴더 이름을 바꿨어요');
-    },
-    function() { toast('폴더 수정 실패'); }
-  );
-}
-function deleteFolderPrompt(name) {
-  if (!confirm('"' + name + '" 폴더를 삭제할까요?\n해당 폴더 태그가 모든 항목에서 제거됩니다.')) return;
-  apiFetch('/folder-delete', 'POST', { name: name },
-    function() {
-      allFolders = allFolders.filter(function(f) { return f !== name; });
-      if (curFolder === name) {
-        curFolder = 'all';
-        document.getElementById('folderLabel').textContent = '전체';
-      }
-      renderPills();
-      renderFolderManage();
-      loadItems(curFolder);
-      toast('폴더를 삭제했어요');
-    },
-    function() { toast('폴더 삭제 실패'); }
-  );
+  allFolders.push(n);
+  renderPills();
+  toast('"' + n + '" 폴더 추가됐어요 🌸');
 }
 
 // ── 아이템 ────────────────────────────────────────────────────────────────
@@ -656,61 +440,11 @@ function buildCard(item) {
     card.onclick = function() { if (!editOn && item.url) window.open(item.url, '_blank'); };
 
   } else {
-    var memoFull = document.createElement('div');
-    memoFull.className = 'cmemo-full';
-    memoFull.textContent = item.memo || item.title;
-    card.appendChild(memoFull);
-
-    var memoBody = document.createElement('div');
-    memoBody.className = 'cbody';
-    memoBody.style.paddingTop = '0';
-    memoBody.innerHTML = '<span class="ctype">📝 메모</span>' +
-      (item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '');
-    card.appendChild(memoBody);
-    card.onclick = function() {
-      if (editOn) return;
-      openMemoView(item, card);
-    };
+    card.innerHTML += '<div class="cmemo-full">' + esc(item.memo || item.title) + '</div>' +
+      '<div class="cbody" style="padding-top:0"><span class="ctype">📝 메모</span>' +
+      (item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '') + '</div>';
   }
   return card;
-}
-
-// ── 메모 보기 ─────────────────────────────────────────────────────────────
-function openMemoView(item, card) {
-  memoViewItem = item;
-  memoViewCard = card;
-  document.getElementById('memoViewText').textContent = item.memo || item.title || '';
-  var folders = document.getElementById('memoViewFolders');
-  folders.innerHTML = '';
-  (item.folders || []).forEach(function(n) {
-    var b = document.createElement('button');
-    b.className = 'fsel-btn on';
-    b.textContent = n;
-    b.disabled = true;
-    folders.appendChild(b);
-  });
-  document.getElementById('memoViewOverlay').classList.add('on');
-}
-function closeMemoView() {
-  document.getElementById('memoViewOverlay').classList.remove('on');
-  memoViewItem = null;
-  memoViewCard = null;
-}
-function memoViewEdit() {
-  if (!memoViewItem) return;
-  document.getElementById('memoViewOverlay').classList.remove('on');
-  _veItem = memoViewItem;
-  _veFolders = _veItem.folders ? _veItem.folders.slice() : [];
-  document.getElementById('viewerEditTitle').value = _veItem.title || '메모';
-  document.getElementById('viewerEditMemo').value = _veItem.memo || _veItem.title || '';
-  renderViewerEditFolders();
-  document.getElementById('viewerEditOverlay').classList.add('on');
-}
-function memoViewDelete() {
-  if (!memoViewItem) return;
-  delPending = { item: memoViewItem, card: memoViewCard };
-  document.getElementById('memoViewOverlay').classList.remove('on');
-  document.getElementById('confirmOverlay').classList.add('on');
 }
 
 // ── 뷰어 ──────────────────────────────────────────────────────────────────
@@ -724,7 +458,7 @@ function openViewer(imgs, start) {
     var src = key ? (key.indexOf('http') === 0 ? key : WU + '/r2/' + encodeURIComponent(key))
                   : (item.notion_image_url || '');
     var s = document.createElement('div'); s.className = 'viewer-slide';
-    s.innerHTML = '<img class="viewer-img" src="' + esc(src) + '" alt="">';
+    s.innerHTML = '<img src="' + esc(src) + '" alt="">';
     track.appendChild(s);
     var d = document.createElement('div'); d.className = 'vdot' + (i === start ? ' on' : '');
     dots.appendChild(d);
@@ -734,103 +468,20 @@ function openViewer(imgs, start) {
   // 뒤로가기로 닫기 위해 history 스택 쌓기
   history.pushState({ viewer: true }, '');
   var wrap = document.getElementById('viewerWrap');
-  wrap.ontouchstart = viewerTouchStart;
-  wrap.ontouchmove = viewerTouchMove;
-  wrap.ontouchend = viewerTouchEnd;
+  wrap.ontouchstart = function(e) { tStart = e.touches[0].clientX; };
+  wrap.ontouchend = function(e) {
+    var dx = e.changedTouches[0].clientX - tStart;
+    if (Math.abs(dx) > 50) goViewer(vIdx + (dx < 0 ? 1 : -1), true);
+  };
 }
 
 function goViewer(idx, anim) {
-  resetZoom();
   vIdx = Math.max(0, Math.min(vItems.length - 1, idx));
   var t = document.getElementById('viewerTrack');
   t.style.transition = anim ? 'transform .3s cubic-bezier(.25,.8,.25,1)' : 'none';
   t.style.transform = 'translateX(-' + (vIdx * 100) + '%)';
   document.getElementById('viewerCnt').textContent = (vIdx + 1) + ' / ' + vItems.length;
   document.querySelectorAll('.vdot').forEach(function(d, i) { d.classList.toggle('on', i === vIdx); });
-}
-
-function currentViewerImg() {
-  return document.querySelectorAll('.viewer-img')[vIdx];
-}
-function applyZoom() {
-  var img = currentViewerImg();
-  if (!img) return;
-  img.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
-}
-function resetZoom() {
-  zoom = 1; panX = 0; panY = 0; pinchStart = 0; pinchZoom = 1; dragStart = null; tMove = false; deepZoomOn = false;
-  document.getElementById('viewerZoomBtn').classList.remove('on');
-  document.querySelectorAll('.viewer-img').forEach(function(img) { img.style.transform = ''; });
-}
-function touchDistance(a, b) {
-  var dx = a.clientX - b.clientX, dy = a.clientY - b.clientY;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-function clampZoom(v) {
-  return Math.max(1, Math.min(deepZoomOn ? 12 : fitWidthZoom(), v));
-}
-function fitWidthZoom() {
-  var img = currentViewerImg();
-  var wrap = document.getElementById('viewerWrap');
-  if (!img || !wrap) return 3;
-  var w = img.getBoundingClientRect().width || 1;
-  var target = wrap.clientWidth / w;
-  return Math.max(1, target);
-}
-function viewerDeepZoom(e) {
-  if (e) e.stopPropagation();
-  closeViewerMenu();
-  deepZoomOn = true;
-  document.getElementById('viewerZoomBtn').classList.add('on');
-  zoom = zoom <= fitWidthZoom() + 0.05 ? Math.max(3, fitWidthZoom() * 1.8) : Math.min(12, zoom * 1.5);
-  panX = 0; panY = 0;
-  applyZoom();
-}
-function viewerTouchStart(e) {
-  closeViewerMenu();
-  tMove = false;
-  if (e.touches.length === 2) {
-    pinchStart = touchDistance(e.touches[0], e.touches[1]);
-    pinchZoom = zoom;
-    dragStart = null;
-  } else if (e.touches.length === 1) {
-    tStart = e.touches[0].clientX;
-    dragStart = { x:e.touches[0].clientX, y:e.touches[0].clientY, panX:panX, panY:panY };
-  }
-}
-function viewerTouchMove(e) {
-  if (e.touches.length === 2 && pinchStart) {
-    e.preventDefault();
-    tMove = true;
-    zoom = clampZoom(pinchZoom * touchDistance(e.touches[0], e.touches[1]) / pinchStart);
-    if (zoom === 1) { panX = 0; panY = 0; }
-    applyZoom();
-  } else if (e.touches.length === 1 && dragStart && zoom > 1) {
-    e.preventDefault();
-    tMove = true;
-    panX = dragStart.panX + e.touches[0].clientX - dragStart.x;
-    panY = dragStart.panY + e.touches[0].clientY - dragStart.y;
-    applyZoom();
-  }
-}
-function viewerTouchEnd(e) {
-  if (e.touches.length) return;
-  var now = Date.now();
-  if (!tMove && now - lastTap < 280) {
-    zoom = zoom > 1 ? 1 : fitWidthZoom();
-    deepZoomOn = false;
-    document.getElementById('viewerZoomBtn').classList.remove('on');
-    panX = 0; panY = 0;
-    applyZoom();
-    lastTap = 0;
-    return;
-  }
-  lastTap = now;
-  if (zoom <= 1 && e.changedTouches && e.changedTouches[0]) {
-    var dx = e.changedTouches[0].clientX - tStart;
-    if (Math.abs(dx) > 50) goViewer(vIdx + (dx < 0 ? 1 : -1), true);
-  }
-  if (zoom <= 1) resetZoom();
 }
 
 // X버튼: history.back() → popstate → closeViewerInternal
@@ -865,18 +516,12 @@ function closeViewerMenu() {
 // 뷰어 바깥 클릭 시 메뉴 닫기
 document.addEventListener('click', function() { closeViewerMenu(); });
 
-// 뷰어에서 수정
+// 뷰어에서 폴더 변경
 var _veItem = null, _veFolders = [];
 function viewerEditFolder() {
   closeViewerMenu();
   _veItem = vItems[vIdx];
   _veFolders = _veItem.folders ? _veItem.folders.slice() : [];
-  document.getElementById('viewerEditTitle').value = _veItem.title || '이미지';
-  document.getElementById('viewerEditMemo').value = _veItem.memo || '';
-  renderViewerEditFolders();
-  document.getElementById('viewerEditOverlay').classList.add('on');
-}
-function renderViewerEditFolders() {
   var sel = document.getElementById('viewerEditFolderSel');
   sel.innerHTML = '';
   allFolders.forEach(function(n) {
@@ -890,30 +535,14 @@ function renderViewerEditFolders() {
     };
     sel.appendChild(b);
   });
-  var add = document.createElement('button');
-  add.className = 'fsel-btn';
-  add.textContent = '+ 폴더 추가';
-  add.onclick = function() {
-    var n = prompt('새 폴더 이름');
-    if (!n || !n.trim()) return;
-    n = n.trim();
-    if (allFolders.indexOf(n) >= 0) { toast('이미 있는 폴더예요'); return; }
-    createFolder(n, function() {
-      _veFolders.push(n);
-      renderViewerEditFolders();
-      toast('폴더 추가됐어요');
-    });
-  };
-  sel.appendChild(add);
+  document.getElementById('viewerEditOverlay').classList.add('on');
 }
 function closeViewerEdit() { document.getElementById('viewerEditOverlay').classList.remove('on'); }
 function saveViewerEdit() {
   if (!_veItem) return;
-  var memo = document.getElementById('viewerEditMemo').value.trim();
-  apiFetch('/update', 'POST', { id: _veItem.id, folders: _veFolders, memo: memo },
+  apiFetch('/update', 'POST', { id: _veItem.id, folders: _veFolders },
     function() {
       _veItem.folders = _veFolders.slice();
-      _veItem.memo = memo;
       toast('수정됐어요 🌸');
       closeViewerEdit();
       loadItems(curFolder);
@@ -1059,7 +688,7 @@ function submitAdd() {
   } else {
     var txt = document.getElementById('addMemoText').value.trim();
     if (!txt) { toast('내용을 입력해주세요'); done(); return; }
-    apiFetch('/save-link', 'POST', {type:'memo', title:txt, folders:addFolders, memo:txt},
+    apiFetch('/save-link', 'POST', {title:txt, url:'', folders:addFolders, memo:txt},
       function() { toast('담았어요 🌸'); closeAdd(); loadItems(curFolder); done(); },
       function() { toast('저장 실패'); done(); });
   }
