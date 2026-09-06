@@ -352,7 +352,7 @@ async function registerShareServiceWorker() {
 }
 
 // ── 시작 ──────────────────────────────────────────────────────────────────
-Window.onload = function() {
+window.onload = function() {
   registerShareServiceWorker();
   if (!WU || !SK) {
     showGrid('<div class="empty"><div class="eico">⚙️</div><div class="etit">설정이 필요해요</div><div class="esub">우측 상단 ⚙️를 눌러주세요</div></div>');
