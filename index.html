@@ -295,7 +295,7 @@ textarea.finput{resize:none;line-height:1.5}
     <div class="cfg-hint">실제 주소: <b>https://damdam.<span id="cfgUrlPreview">___</span>.workers.dev</b><br>(workers.dev 앞의 계정 이름만 입력하면 돼요. 전체 주소를 붙여넣어도 인식해요)</div>
     <div class="flabel">Secret Key</div>
     <input class="finput" id="cfgKey" type="password" placeholder="비밀 키 입력">
-    <button class="fbtn" onclick="saveSettings()">저장</button>
+    <button class="fbtn" onclick="saveSettings()">저장</button>    <button class="fbtn sub" id="igBackfillBtn" onclick="runInstagramBackfill()">📸 기존 인스타그램 이미지 다시 가져오기</button>
   </div>
 </div>
 
@@ -728,7 +728,7 @@ function saveSettings() {
   closeSettings(); toast('설정 저장 완료!');
   setTimeout(function() { location.reload(); }, 800);
 }
-async function resetApp() {
+function runInstagramBackfill() { var btn = document.getElementById('igBackfillBtn'); btn.disabled = true; btn.textContent = '가져오는 중...'; apiFetch('/backfill-instagram-images', 'POST', {}, function(data) { btn.disabled = false; btn.textContent = '📸 기존 인스타그램 이미지 다시 가져오기'; if (data && data.success) { toast((data.updated || 0) + '개 항목에 이미지를 채웠어요 (검사 ' + (data.checked || 0) + '개)'); if (data.updated) loadAll(); } else { toast('실패했어요: ' + ((data && data.error) || '알 수 없는 오류')); } }, function() { btn.disabled = false; btn.textContent = '📸 기존 인스타그램 이미지 다시 가져오기'; toast('요청 실패'); }); } async function resetApp() {
   if ('serviceWorker' in navigator) {
     var regs = await navigator.serviceWorker.getRegistrations();
     for (var r of regs) await r.unregister();
