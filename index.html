@@ -499,7 +499,7 @@ function buildCard(item) {
   } else if (item.type === 'link') {
     if (item.image_key) {
       var img2 = document.createElement('img');
-      img2.className = 'thumb wide'; img2.src = proxyImg(item.image_key); img2.alt = '';
+      img2.className = 'thumb wide'; img2.src = (item.image_key.indexOf('http') === 0 ? proxyImg(item.image_key) : WU + '/r2/' + encodeURIComponent(item.image_key)); img2.alt = '';
       img2.onerror = function() { img2.style.display = 'none'; };
       card.appendChild(img2);
     }
