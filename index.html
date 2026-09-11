@@ -14,7 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--pink:#FF8FAB;--pink-d:#E8557A;--pink-l:#FFD6E0;--pink-p:#FFF0F5;--lav:#E3D6F5;--lav-d:#B79FDE;--text:#3A2E38;--sub:#8A7A87;--white:#fff;--bg:#F8F1F4;--r:14px;--sh:3px 3px 0 rgba(74,58,70,.15)}
+:root{--pink:#FF8FAB;--pink-d:#E8557A;--pink-l:#FFD6E0;--pink-p:#FFF0F5;--lav:#E3D6F5;--lav-d:#B79FDE;--text:#3A2E38;--sub:#8A7A87;--white:#fff;--bg:#F8F1F4;--r:14px;--sh:3px 3px 0 rgba(74,58,70,.15);--app-max:480px}@media(min-width:600px){:root{--app-max:640px}}
 body{
   font-family:'Noto Sans KR',sans-serif;min-height:100dvh;display:flex;justify-content:center;
   background:
@@ -26,7 +26,7 @@ body{
     linear-gradient(160deg,#F1E4F5 0%,#FCEAF0 55%,#F3E8F6 100%);
   background-attachment:fixed;
 }
-.app{width:100%;max-width:480px;background:var(--bg);min-height:100dvh;display:flex;flex-direction:column;border:3px solid var(--pink-d);box-shadow:5px 5px 0 rgba(74,58,70,.15)}
+.app{width:100%;max-width:var(--app-max);background:var(--bg);min-height:100dvh;display:flex;flex-direction:column;border:3px solid var(--pink-d);box-shadow:5px 5px 0 rgba(74,58,70,.15)}
 
 /* 헤더 (레트로 윈도우 타이틀바) */
 .hdr{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#FFD6E0 0%,#E3D6F5 100%);padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--pink-d)}
@@ -51,7 +51,7 @@ body{
 .pill.add{border-style:dashed;color:var(--pink-d);border-color:var(--pink)}
 
 /* 그리드 */
-.grid{padding:14px 12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid{padding:14px 12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
 .card{background:var(--white);border-radius:12px;border:2px solid var(--pink-l);box-shadow:var(--sh);overflow:hidden;cursor:pointer;position:relative;transition:transform .12s}
 .card:active{transform:translate(1px,1px)}
 .thumb{width:100%;aspect-ratio:1;object-fit:cover;background:var(--pink-p);display:block}
@@ -87,14 +87,14 @@ body{
 .edit-bar.on{display:block}
 
 /* FAB */
-.fab{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));right:calc(50% - 240px + 20px);width:52px;height:52px;border-radius:50%;background:var(--pink);border:3px solid var(--pink-d);cursor:pointer;box-shadow:3px 3px 0 rgba(74,58,70,.25);display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;z-index:15;transition:transform .08s}
+.fab{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));right:max(20px, calc((100vw - var(--app-max)) / 2 + 20px));width:52px;height:52px;border-radius:50%;background:var(--pink);border:3px solid var(--pink-d);cursor:pointer;box-shadow:3px 3px 0 rgba(74,58,70,.25);display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;z-index:15;transition:transform .08s}
 .fab:active{transform:translate(2px,2px);box-shadow:none}
-@media(max-width:480px){.fab{right:20px}}
+
 
 /* 모달 공통 */
 .overlay{display:none;position:fixed;inset:0;background:rgba(74,58,70,.45);z-index:50;align-items:flex-end;justify-content:center}
 .overlay.on{display:flex}
-.sheet{width:100%;max-width:480px;background:var(--white);border-radius:24px 24px 0 0;border-top:3px solid var(--pink-d);padding:20px 20px calc(20px + env(safe-area-inset-bottom));position:relative;animation:su .25s ease;max-height:85dvh;overflow-y:auto}
+.sheet{width:100%;max-width:var(--app-max);background:var(--white);border-radius:24px 24px 0 0;border-top:3px solid var(--pink-d);padding:20px 20px calc(20px + env(safe-area-inset-bottom));position:relative;animation:su .25s ease;max-height:85dvh;overflow-y:auto}
 @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .sheet-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:16px}
 .sheet-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:22px;color:var(--sub)}
@@ -480,8 +480,8 @@ function buildCard(item) {
 
   if (item.type === 'image') {
     var key = item.image_key || '';
-    var src = key ? (key.indexOf('http') === 0 ? key : WU + '/r2/' + encodeURIComponent(key))
-                  : (item.notion_image_url || '');
+    var src = key ? (key.indexOf('http') === 0 ? proxyImg(key) : WU + '/r2/' + encodeURIComponent(key))
+                  : (item.notion_image_url ? proxyImg(item.notion_image_url) : '');
     var img = document.createElement('img');
     img.className = 'thumb'; img.src = src; img.alt = '';
     img.onerror = function() { img.style.display = 'none'; };
@@ -499,7 +499,7 @@ function buildCard(item) {
   } else if (item.type === 'link') {
     if (item.image_key) {
       var img2 = document.createElement('img');
-      img2.className = 'thumb wide'; img2.src = item.image_key; img2.alt = '';
+      img2.className = 'thumb wide'; img2.src = proxyImg(item.image_key); img2.alt = '';
       img2.onerror = function() { img2.style.display = 'none'; };
       card.appendChild(img2);
     }
@@ -570,8 +570,8 @@ function openViewer(imgs, start) {
   track.innerHTML = dots.innerHTML = '';
   imgs.forEach(function(item, i) {
     var key = item.image_key || '';
-    var src = key ? (key.indexOf('http') === 0 ? key : WU + '/r2/' + encodeURIComponent(key))
-                  : (item.notion_image_url || '');
+    var src = key ? (key.indexOf('http') === 0 ? proxyImg(key) : WU + '/r2/' + encodeURIComponent(key))
+                  : (item.notion_image_url ? proxyImg(item.notion_image_url) : '');
     var s = document.createElement('div'); s.className = 'viewer-slide';
     s.innerHTML = '<img src="' + esc(src) + '" alt="">';
     track.appendChild(s);
@@ -831,7 +831,7 @@ function apiFetch(path, method, body, onOk, onErr) {
 }
 
 // ── 유틸 ──────────────────────────────────────────────────────────────────
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }function proxyImg(u) { return u ? (WU + '/img-proxy?u=' + encodeURIComponent(u)) : u; }
 function domain(u) { try { return new URL(u).hostname; } catch(e) { return u; } }
 function toast(msg) {
   var el = document.createElement('div'); el.className = 'toast'; el.textContent = msg;
