@@ -16,15 +16,15 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--pink:#FF8FAB;--pink-d:#E8557A;--pink-l:#FFD6E0;--pink-p:#FFF0F5;--lav:#E3D6F5;--lav-d:#B79FDE;--text:#3A2E38;--sub:#8A7A87;--white:#fff;--bg:#F8F1F4;--r:14px;--sh:3px 3px 0 rgba(74,58,70,.15);--app-max:480px}@media(min-width:600px){:root{--app-max:640px}}
 body{
-  font-family:'Noto Sans KR',sans-serif;min-height:100dvh;display:flex;justify-content:center;
-  background:
-    radial-gradient(circle at 18% 12%, rgba(255,182,203,.4) 0 3px, transparent 4px),
-    radial-gradient(circle at 72% 58%, rgba(183,159,222,.35) 0 3px, transparent 4px),
-    radial-gradient(circle at 38% 88%, rgba(255,182,203,.35) 0 3px, transparent 4px),
-    radial-gradient(circle at 90% 22%, rgba(183,159,222,.3) 0 3px, transparent 4px),
-    radial-gradient(circle at 8% 65%, rgba(255,182,203,.3) 0 3px, transparent 4px),
-    linear-gradient(160deg,#F1E4F5 0%,#FCEAF0 55%,#F3E8F6 100%);
-  background-attachment:fixed;
+font-family:'Noto Sans KR',sans-serif;min-height:100dvh;display:flex;justify-content:center;
+background:
+radial-gradient(circle at 18% 12%, rgba(255,182,203,.4) 0 3px, transparent 4px),
+radial-gradient(circle at 72% 58%, rgba(183,159,222,.35) 0 3px, transparent 4px),
+radial-gradient(circle at 38% 88%, rgba(255,182,203,.35) 0 3px, transparent 4px),
+radial-gradient(circle at 90% 22%, rgba(183,159,222,.3) 0 3px, transparent 4px),
+radial-gradient(circle at 8% 65%, rgba(255,182,203,.3) 0 3px, transparent 4px),
+linear-gradient(160deg,#F1E4F5 0%,#FCEAF0 55%,#F3E8F6 100%);
+background-attachment:fixed;
 }
 .app{width:100%;max-width:var(--app-max);background:var(--bg);min-height:100dvh;display:flex;flex-direction:column;border:3px solid var(--pink-d);box-shadow:5px 5px 0 rgba(74,58,70,.15)}
 
@@ -89,7 +89,6 @@ body{
 /* FAB */
 .fab{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));right:max(20px, calc((100vw - var(--app-max)) / 2 + 20px));width:52px;height:52px;border-radius:50%;background:var(--pink);border:3px solid var(--pink-d);cursor:pointer;box-shadow:3px 3px 0 rgba(74,58,70,.25);display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;z-index:15;transition:transform .08s}
 .fab:active{transform:translate(2px,2px);box-shadow:none}
-
 
 /* 모달 공통 */
 .overlay{display:none;position:fixed;inset:0;background:rgba(74,58,70,.45);z-index:50;align-items:flex-end;justify-content:center}
@@ -162,25 +161,37 @@ textarea.finput{resize:none;line-height:1.5}
 <div class="app">
 
 <div class="hdr">
-  <div class="hdr-title">담<span>담</span></div>
-  <div class="hdr-btns">
-    <button class="hbtn" id="editBtn" onclick="toggleEdit()">
-      <svg id="editIcon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#E8557A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-    </button>
-    <button class="hbtn" onclick="openSettings()">⚙️</button>
-  </div>
+<div class="hdr-title">담<span>담</span></div>
+<div class="hdr-btns">
+<button class="hbtn" id="editBtn" onclick="toggleEdit()">
+<svg id="editIcon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#E8557A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+</button>
+<button class="hbtn" onclick="openSettings()">⚙️</button>
+</div>
 </div>
 
 <div class="folder-bar">
-  <div class="folder-toggle-row" onclick="toggleFolders()">
-    <div class="folder-label">📁 <span id="folderLabel">전체</span></div>
-    <span class="folder-arrow" id="folderArrow">▾</span>
-  </div>
-  <div class="folder-pills" id="folderPills"></div>
+<div class="folder-toggle-row" onclick="toggleFolders()">
+<div class="folder-label">📁 <span id="folderLabel">전체</span></div>
+<span class="folder-arrow" id="folderArrow">▾</span>
+</div>
+<div class="folder-pills" id="folderPills"></div>
+</div>
+
+<div class="folder-bar">
+<div class="folder-toggle-row" onclick="toggleSources()">
+<div class="folder-label" style="background:var(--lav-d)">🏷 <span id="sourceLabel">전체</span></div>
+<span class="folder-arrow" id="sourceArrow">▾</span>
+</div>
+<div class="folder-pills" id="sourcePills"></div>
+</div>
+
+<div style="padding:10px 12px 0">
+<input class="finput" id="searchInput" placeholder="🔍 제목·메모 검색" oninput="onSearchInput()" style="font-size:13px;padding:9px 14px">
 </div>
 
 <div class="grid" id="grid">
-  <div class="spin-wrap"><div class="spin"></div></div>
+<div class="spin-wrap"><div class="spin"></div></div>
 </div>
 
 <div class="edit-bar" id="editBar">카드를 눌러 삭제 &nbsp;|&nbsp; 다시 눌러 완료</div>
@@ -190,413 +201,497 @@ textarea.finput{resize:none;line-height:1.5}
 
 <!-- 삭제 확인 -->
 <div class="confirm-overlay" id="confirmOverlay">
-  <div class="confirm-box">
-    <div style="font-size:40px;margin-bottom:14px">🗑️</div>
-    <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:10px">정말 삭제할까요?</div>
-    <div style="font-size:14px;color:var(--sub);line-height:1.8">한번 삭제하면<br>되돌릴 수 없어요</div>
-    <div class="cbtn-row">
-      <button class="cbtn cancel" onclick="closeConfirm()">취소</button>
-      <button class="cbtn del" onclick="doDelete()">삭제</button>
-    </div>
-  </div>
+<div class="confirm-box">
+<div style="font-size:40px;margin-bottom:14px">🗑️</div>
+<div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:10px">정말 삭제할까요?</div>
+<div style="font-size:14px;color:var(--sub);line-height:1.8">한번 삭제하면<br>되돌릴 수 없어요</div>
+<div class="cbtn-row">
+<button class="cbtn cancel" onclick="closeConfirm()">취소</button>
+<button class="cbtn del" onclick="doDelete()">삭제</button>
+</div>
+</div>
 </div>
 
 <!-- 이미지 뷰어 -->
 <div class="viewer" id="viewer">
-  <div class="viewer-hdr">
-    <span class="viewer-cnt" id="viewerCnt"></span>
-    <div class="viewer-hdr-btns">
-      <button class="viewer-more" onclick="toggleViewerMenu(event)">⋯</button>
-      <div class="viewer-dropdown" id="viewerDropdown">
-        <button onclick="viewerEditFolder()">✏️ 폴더 변경</button>
-        <button onclick="viewerDeleteItem()">🗑️ 삭제</button>
-      </div>
-      <button class="viewer-x" onclick="closeViewer()">✕</button>
-    </div>
-  </div>
-  <div class="viewer-wrap" id="viewerWrap">
-    <div class="viewer-track" id="viewerTrack"></div>
-  </div>
-  <div class="viewer-dots" id="viewerDots"></div>
+<div class="viewer-hdr">
+<span class="viewer-cnt" id="viewerCnt"></span>
+<div class="viewer-hdr-btns">
+<button class="viewer-more" onclick="toggleViewerMenu(event)">⋯</button>
+<div class="viewer-dropdown" id="viewerDropdown">
+<button onclick="viewerEditFolder()">✏️ 폴더 변경</button>
+<button onclick="viewerDeleteItem()">🗑️ 삭제</button>
+</div>
+<button class="viewer-x" onclick="closeViewer()">✕</button>
+</div>
+</div>
+<div class="viewer-wrap" id="viewerWrap">
+<div class="viewer-track" id="viewerTrack"></div>
+</div>
+<div class="viewer-dots" id="viewerDots"></div>
 </div>
 
 <!-- 뷰어 폴더 변경 시트 -->
 <div class="overlay" id="viewerEditOverlay" onclick="if(event.target===this)closeViewerEdit()">
-  <div class="sheet">
-    <button class="sheet-close" onclick="closeViewerEdit()">✕</button>
-    <div class="sheet-title">✏️ 폴더 변경</div>
-    <div class="flabel">폴더</div>
-    <div class="folder-sel" id="viewerEditFolderSel"></div>
-    <button class="fbtn" onclick="saveViewerEdit()">저장</button>
-  </div>
+<div class="sheet">
+<button class="sheet-close" onclick="closeViewerEdit()">✕</button>
+<div class="sheet-title">✏️ 폴더 변경</div>
+<div class="flabel">폴더</div>
+<div class="folder-sel" id="viewerEditFolderSel"></div>
+<button class="fbtn" onclick="saveViewerEdit()">저장</button>
+</div>
 </div>
 
 <!-- 카드 수정 (링크/메모/이미지 공통) -->
 <div class="overlay" id="cardEditOverlay" onclick="if(event.target===this)closeCardEdit()">
-  <div class="sheet">
-    <button class="sheet-close" onclick="closeCardEdit()">✕</button>
-    <div class="sheet-title">✏️ 수정</div>
-    <div id="ceLinkFields">
-      <div class="flabel">제목</div>
-      <input class="finput" id="ceTitle" placeholder="제목">
-      <div class="flabel">URL</div>
-      <input class="finput" id="ceUrl" type="url" placeholder="https://...">
-    </div>
-    <div class="flabel">메모</div>
-    <textarea class="finput" id="ceMemo" rows="3" placeholder="메모"></textarea>
-    <div class="flabel">폴더</div>
-    <div class="folder-sel" id="ceFolderSel"></div>
-    <button class="fbtn" onclick="saveCardEdit()">저장</button>
-  </div>
+<div class="sheet">
+<button class="sheet-close" onclick="closeCardEdit()">✕</button>
+<div class="sheet-title">✏️ 수정</div>
+<div id="ceLinkFields">
+<div class="flabel">제목</div>
+<input class="finput" id="ceTitle" placeholder="제목">
+<div class="flabel">URL</div>
+<input class="finput" id="ceUrl" type="url" placeholder="https://...">
+</div>
+<div class="flabel">메모</div>
+<textarea class="finput" id="ceMemo" rows="3" placeholder="메모"></textarea>
+<div class="flabel">폴더</div>
+<div class="folder-sel" id="ceFolderSel"></div>
+<button class="fbtn" onclick="saveCardEdit()">저장</button>
+</div>
 </div>
 
 <!-- 직접 추가 -->
 <div class="overlay" id="addOverlay" onclick="if(event.target===this)closeAdd()">
-  <div class="sheet">
-    <button class="sheet-close" onclick="closeAdd()">✕</button>
-    <div class="sheet-title">✚ 직접 추가</div>
-    <div class="type-tabs">
-      <button class="ttab on" onclick="setAddType('link',this)">🔗 링크</button>
-      <button class="ttab" onclick="setAddType('image',this)">🖼 이미지</button>
-      <button class="ttab" onclick="setAddType('memo',this)">📝 메모</button>
-    </div>
-    <div id="addLink">
-      <div class="flabel">URL</div>
-      <input class="finput" id="addUrl" type="url" placeholder="https://...">
-    </div>
-    <div id="addImage" style="display:none">
-      <div class="flabel">이미지 선택</div>
-      <label class="file-pick">📎 파일 선택
-        <input type="file" accept="image/*" multiple style="display:none" id="addFile" onchange="previewAdd(this)">
-      </label>
-      <div class="file-preview" id="addPreview"></div>
-    </div>
-    <div id="addMemo" style="display:none">
-      <div class="flabel">내용</div>
-      <textarea class="finput" id="addMemoText" rows="4" placeholder="메모 내용을 입력하세요"></textarea>
-    </div>
-    <div class="flabel">폴더</div>
-    <div class="folder-sel" id="addFolderSel"></div>
-    <div id="addMemoWrap">
-      <div class="flabel">메모 <span style="font-weight:400;color:#bbb">(선택)</span></div>
-      <input class="finput" id="addMemoNote" placeholder="키워드로 메모해두면 쉽게 찾아볼 수 있어요!">
-    </div>
-    <button class="fbtn" id="addBtn" onclick="submitAdd()">저장</button>
-  </div>
+<div class="sheet">
+<button class="sheet-close" onclick="closeAdd()">✕</button>
+<div class="sheet-title">✚ 직접 추가</div>
+<div class="type-tabs">
+<button class="ttab on" onclick="setAddType('link',this)">🔗 링크</button>
+<button class="ttab" onclick="setAddType('image',this)">🖼 이미지</button>
+<button class="ttab" onclick="setAddType('memo',this)">📝 메모</button>
+</div>
+<div id="addLink">
+<div class="flabel">URL</div>
+<input class="finput" id="addUrl" type="url" placeholder="https://...">
+</div>
+<div id="addImage" style="display:none">
+<div class="flabel">이미지 선택</div>
+<label class="file-pick">📎 파일 선택
+<input type="file" accept="image/*" multiple style="display:none" id="addFile" onchange="previewAdd(this)">
+</label>
+<div class="file-preview" id="addPreview"></div>
+</div>
+<div id="addMemo" style="display:none">
+<div class="flabel">내용</div>
+<textarea class="finput" id="addMemoText" rows="4" placeholder="메모 내용을 입력하세요"></textarea>
+</div>
+<div class="flabel">폴더</div>
+<div class="folder-sel" id="addFolderSel"></div>
+<div id="addMemoWrap">
+<div class="flabel">메모 <span style="font-weight:400;color:#bbb">(선택)</span></div>
+<input class="finput" id="addMemoNote" placeholder="키워드로 메모해두면 쉽게 찾아볼 수 있어요!">
+</div>
+<button class="fbtn" id="addBtn" onclick="submitAdd()">저장</button>
+</div>
 </div>
 
 <!-- 설정 -->
 <div class="overlay" id="settingsOverlay" onclick="if(event.target===this)closeSettings()">
-  <div class="sheet">
-    <button class="sheet-close" onclick="closeSettings()">✕</button>
-    <div class="sheet-title">⚙️ 설정</div>
-    <div class="flabel">Worker 계정명</div>
-    <input class="finput" id="cfgUrl" type="text" placeholder="예: hyunra94" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="updateCfgPreview()">
-    <div class="cfg-hint">실제 주소: <b>https://damdam.<span id="cfgUrlPreview">___</span>.workers.dev</b><br>(workers.dev 앞의 계정 이름만 입력하면 돼요. 전체 주소를 붙여넣어도 인식해요)</div>
-    <div class="flabel">Secret Key</div>
-    <input class="finput" id="cfgKey" type="password" placeholder="비밀 키 입력">
-    <button class="fbtn" onclick="saveSettings()">저장</button>    <button class="fbtn sub" id="igBackfillBtn" onclick="runInstagramBackfill()">📸 기존 인스타그램 이미지 다시 가져오기</button>
-  </div>
+<div class="sheet">
+<button class="sheet-close" onclick="closeSettings()">✕</button>
+<div class="sheet-title">⚙️ 설정</div>
+<div class="flabel">Worker 계정명</div>
+<input class="finput" id="cfgUrl" type="text" placeholder="예: hyunra94" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="updateCfgPreview()">
+<div class="cfg-hint">실제 주소: <b>https://damdam.<span id="cfgUrlPreview">___</span>.workers.dev</b><br>(workers.dev 앞의 계정 이름만 입력하면 돼요. 전체 주소를 붙여넣어도 인식해요)</div>
+<div class="flabel">Secret Key</div>
+<input class="finput" id="cfgKey" type="password" placeholder="비밀 키 입력">
+<button class="fbtn" onclick="saveSettings()">저장</button> <button class="fbtn sub" id="igBackfillBtn" onclick="runInstagramBackfill()">📸 기존 인스타그램 이미지 다시 가져오기</button>
+</div>
 </div>
 
 <script>
 // ── 설정 ──────────────────────────────────────────────────────────────────
 function damdamBuildWorkerUrl(v) {
-  v = (v || '').trim();
-  if (!v) return '';
-  if (/^https?:\/\//i.test(v)) return v.replace(/\/$/, '');
-  return 'https://damdam.' + v.replace(/\.workers\.dev\/?$/i, '').replace(/^damdam\./i, '') + '.workers.dev';
+v = (v || '').trim();
+if (!v) return '';
+if (/^https?:\/\//i.test(v)) return v.replace(/\/$/, '');
+return 'https://damdam.' + v.replace(/\.workers\.dev\/?$/i, '').replace(/^damdam\./i, '') + '.workers.dev';
 }
 function damdamGetAccount() {
-  var v = localStorage.getItem('damdam_worker_account');
-  if (v === null) {
-    // 예전 버전(전체 URL 저장) 호환: 있으면 그대로 새 키로 옮겨옴
-    var legacy = localStorage.getItem('damdam_worker_url') || '';
-    v = legacy;
-    if (legacy) localStorage.setItem('damdam_worker_account', legacy);
-  }
-  return v || '';
+var v = localStorage.getItem('damdam_worker_account');
+if (v === null) {
+// 예전 버전(전체 URL 저장) 호환: 있으면 그대로 새 키로 옮겨옴
+var legacy = localStorage.getItem('damdam_worker_url') || '';
+v = legacy;
+if (legacy) localStorage.setItem('damdam_worker_account', legacy);
+}
+return v || '';
 }
 var WU_ACCOUNT = damdamGetAccount();
 var WU = damdamBuildWorkerUrl(WU_ACCOUNT);
 var SK = localStorage.getItem('damdam_secret_key') || '';
 var curFolder = 'all', editOn = false, folderOpen = false;
+var curSource = 'all', sourceOpen = false, searchText = '';
 var allItems = [], allFolders = [], delPending = null;
 var vItems = [], vIdx = 0, tStart = 0;
 var addType = 'link', addFolders = [];
 
 // ── 공유 대상 Service Worker 등록 ─────────────────────────────────────────
 async function registerShareServiceWorker() {
-  if (!('serviceWorker' in navigator)) return;
+if (!('serviceWorker' in navigator)) return;
 
-  try {
-    // v 파라미터와 updateViaCache:none으로 모바일 크롬/설치앱에 남은 구버전 SW 캐시를 강제로 갱신
-    var reg = await navigator.serviceWorker.register('./sw.js?v=20260906-redesign', {
-      scope: './',
-      updateViaCache: 'none'
-    });
+try {
+// v 파라미터와 updateViaCache:none으로 모바일 크롬/설치앱에 남은 구버전 SW 캐시를 강제로 갱신
+var reg = await navigator.serviceWorker.register('./sw.js?v=20260906-redesign', {
+scope: './',
+updateViaCache: 'none'
+});
 
-    // 이미 설치된 PWA에서도 최신 SW를 즉시 확인
-    if (reg && reg.update) await reg.update();
-    await navigator.serviceWorker.ready;
+// 이미 설치된 PWA에서도 최신 SW를 즉시 확인
+if (reg && reg.update) await reg.update();
+await navigator.serviceWorker.ready;
 
-    // 첫 등록 직후 아직 controller가 없으면 다음 제어 시작 시 한 번 새로고침
-    if (!navigator.serviceWorker.controller) {
-      navigator.serviceWorker.addEventListener('controllerchange', function() {
-        location.reload();
-      }, { once: true });
-    }
-  } catch (e) {
-    console.error('Service Worker 등록 실패:', e);
-  }
+// 첫 등록 직후 아직 controller가 없으면 다음 제어 시작 시 한 번 새로고침
+if (!navigator.serviceWorker.controller) {
+navigator.serviceWorker.addEventListener('controllerchange', function() {
+location.reload();
+}, { once: true });
+}
+} catch (e) {
+console.error('Service Worker 등록 실패:', e);
+}
 }
 
 // ── 시작 ──────────────────────────────────────────────────────────────────
 window.onload = function() {
-  registerShareServiceWorker();
-  if (!WU || !SK) {
-    showGrid('<div class="empty"><div class="eico">⚙️</div><div class="etit">설정이 필요해요</div><div class="esub">우측 상단 ⚙️를 눌러주세요</div></div>');
-    openSettings();
-    return;
-  }
-  loadAll();
+registerShareServiceWorker();
+if (!WU || !SK) {
+showGrid('<div class="empty"><div class="eico">⚙️</div><div class="etit">설정이 필요해요</div><div class="esub">우측 상단 ⚙️를 눌러주세요</div></div>');
+openSettings();
+return;
+}
+loadAll();
 };
 
 function loadAll() {
-  loadFolders();
-  loadItems(curFolder);
+loadFolders();
+loadItems(curFolder);
 }
 
 // ── 폴더 ──────────────────────────────────────────────────────────────────
 function loadFolders() {
-  apiFetch('/folders', 'GET', null, function(data) {
-    allFolders = (data && data.folders) || [];
-    renderPills();
-  }, function() {});
+apiFetch('/folders', 'GET', null, function(data) {
+allFolders = (data && data.folders) || [];
+renderPills();
+}, function() {});
 }
 
 function renderPills() {
-  var wrap = document.getElementById('folderPills');
-  wrap.innerHTML = '';
-  makePill('전체', 'all', wrap);
-  allFolders.forEach(function(n) { makePill(n, n, wrap); });
-  var add = document.createElement('button');
-  add.className = 'pill add';
-  add.textContent = '+ 추가';
-  add.onclick = function() { addFolderPrompt(); };
-  wrap.appendChild(add);
+var wrap = document.getElementById('folderPills');
+wrap.innerHTML = '';
+makePill('전체', 'all', wrap);
+allFolders.forEach(function(n) { makePill(n, n, wrap); });
+var add = document.createElement('button');
+add.className = 'pill add';
+add.textContent = '+ 추가';
+add.onclick = function() { addFolderPrompt(); };
+wrap.appendChild(add);
 }
 
 function makePill(label, val, wrap) {
-  var b = document.createElement('button');
-  b.className = 'pill' + (curFolder === val ? ' active' : '');
-  b.textContent = label;
-  b.onclick = function() { selectFolder(val, b); };
-  wrap.appendChild(b);
+var b = document.createElement('button');
+b.className = 'pill' + (curFolder === val ? ' active' : '');
+b.textContent = label;
+b.onclick = function() { selectFolder(val, b); };
+wrap.appendChild(b);
 }
 
 function selectFolder(val, btn) {
-  curFolder = val;
-  document.querySelectorAll('.pill').forEach(function(p) { p.classList.remove('active'); });
-  btn.classList.add('active');
-  document.getElementById('folderLabel').textContent = val === 'all' ? '전체' : val;
-  toggleFolders(false);
-  loadItems(val);
+curFolder = val;
+document.querySelectorAll('.pill').forEach(function(p) { p.classList.remove('active'); });
+btn.classList.add('active');
+document.getElementById('folderLabel').textContent = val === 'all' ? '전체' : val;
+toggleFolders(false);
+loadItems(val);
 }
 
 function toggleFolders(force) {
-  folderOpen = force !== undefined ? force : !folderOpen;
-  document.getElementById('folderPills').classList.toggle('open', folderOpen);
-  document.getElementById('folderArrow').classList.toggle('open', folderOpen);
+folderOpen = force !== undefined ? force : !folderOpen;
+document.getElementById('folderPills').classList.toggle('open', folderOpen);
+document.getElementById('folderArrow').classList.toggle('open', folderOpen);
 }
 
 function addFolderPrompt() {
-  var n = prompt('새 폴더 이름');
-  if (!n || !n.trim()) return;
-  n = n.trim();
-  if (allFolders.indexOf(n) >= 0) { toast('이미 있는 폴더예요'); return; }
-  apiFetch('/folder-create', 'POST', { name: n },
-    function() {
-      allFolders.push(n);
-      renderPills();
-      toast('"' + n + '" 폴더 추가됐어요 🌸');
-    },
-    function() { toast('폴더 추가 실패'); }
-  );
+var n = prompt('새 폴더 이름');
+if (!n || !n.trim()) return;
+n = n.trim();
+if (allFolders.indexOf(n) >= 0) { toast('이미 있는 폴더예요'); return; }
+apiFetch('/folder-create', 'POST', { name: n },
+function() {
+allFolders.push(n);
+renderPills();
+toast('"' + n + '" 폴더 추가됐어요 🌸');
+},
+function() { toast('폴더 추가 실패'); }
+);
 }
 
 // ── 아이템 ────────────────────────────────────────────────────────────────
 function loadItems(folder) {
-  showGrid('<div class="spin-wrap"><div class="spin"></div></div>');
-  var timer = setTimeout(function() {
-    if (document.querySelector('.spin')) {
-      showGrid('<div class="empty"><div class="eico">😢</div><div class="etit">응답 없음</div><div class="esub" style="margin-top:8px"><button class="retry-btn" onclick="loadItems(\'' + folder + '\')">다시 시도</button></div></div>');
-    }
-  }, 12000);
-  apiFetch('/list?folder=' + encodeURIComponent(folder), 'GET', null,
-    function(data) {
-      clearTimeout(timer);
-      allItems = (data && data.items) || [];
-      renderItems();
-    },
-    function(e) {
-      clearTimeout(timer);
-      showGrid('<div class="empty"><div class="eico">😢</div><div class="etit">불러오기 실패</div><div class="esub" style="margin-top:8px"><button class="retry-btn" onclick="loadItems(\'' + folder + '\')">다시 시도</button></div></div>');
-    }
-  );
+showGrid('<div class="spin-wrap"><div class="spin"></div></div>');
+var timer = setTimeout(function() {
+if (document.querySelector('.spin')) {
+showGrid('<div class="empty"><div class="eico">😢</div><div class="etit">응답 없음</div><div class="esub" style="margin-top:8px"><button class="retry-btn" onclick="loadItems(\'' + folder + '\')">다시 시도</button></div></div>');
+}
+}, 12000);
+apiFetch('/list?folder=' + encodeURIComponent(folder), 'GET', null,
+function(data) {
+clearTimeout(timer);
+allItems = (data && data.items) || [];
+renderItems();
+},
+function(e) {
+clearTimeout(timer);
+showGrid('<div class="empty"><div class="eico">😢</div><div class="etit">불러오기 실패</div><div class="esub" style="margin-top:8px"><button class="retry-btn" onclick="loadItems(\'' + folder + '\')">다시 시도</button></div></div>');
+}
+);
 }
 
 function showGrid(html) {
-  document.getElementById('grid').innerHTML = html;
+document.getElementById('grid').innerHTML = html;
 }
 
 function renderItems() {
-  if (!allItems.length) {
-    showGrid('<div class="empty"><div class="eico">🌸</div><div class="etit">아직 저장된 게 없어요</div><div class="esub">공유 버튼으로 담담에 저장해보세요!</div></div>');
-    return;
-  }
-  var grid = document.getElementById('grid');
-  grid.innerHTML = '';
-  allItems.forEach(function(item) { grid.appendChild(buildCard(item)); });
+if (!allItems.length) {
+showGrid('<div class="empty"><div class="eico">🌸</div><div class="etit">아직 저장된 게 없어요</div><div class="esub">공유 버튼으로 담담에 저장해보세요!</div></div>');
+renderSourcePills();
+return;
+}
+renderSourcePills();
+var filtered = allItems.filter(matchesFilters);
+var grid = document.getElementById('grid');
+grid.innerHTML = '';
+if (!filtered.length) {
+showGrid('<div class="empty"><div class="eico">🔍</div><div class="etit">결과가 없어요</div><div class="esub">다른 출처나 검색어로 찾아보세요</div></div>');
+return;
+}
+filtered.forEach(function(item) { grid.appendChild(buildCard(item)); });
+}
+
+// ── 출처 분류 ─────────────────────────────────────────────────────────────
+function sourceInfo(item) {
+if (item.type === 'image') return { key: 'image', label: '🖼 이미지' };
+if (item.type !== 'link' || !item.url) return { key: 'memo', label: '📝 메모' };
+var host = '';
+try { host = new URL(item.url).hostname.toLowerCase(); } catch (e) {}
+if (host.indexOf('youtube.com') >= 0 || host.indexOf('youtu.be') >= 0) return { key: 'youtube', label: '▶️ 유튜브' };
+if (host.indexOf('instagram.com') >= 0) return { key: 'instagram', label: '📷 인스타그램' };
+if (host.indexOf('tiktok.com') >= 0) return { key: 'tiktok', label: '🎵 틱톡' };
+if (host.indexOf('twitter.com') >= 0 || host.indexOf('x.com') >= 0) return { key: 'twitter', label: '🐦 트위터' };
+if (host.indexOf('threads.net') >= 0) return { key: 'threads', label: '🧵 스레드' };
+if (host.indexOf('naver.com') >= 0) return { key: 'naver', label: '📰 네이버' };
+return { key: 'other', label: '🔗 기타링크' };
+}
+
+var SOURCE_ORDER = ['youtube', 'instagram', 'tiktok', 'twitter', 'threads', 'naver', 'other', 'image', 'memo'];
+
+function renderSourcePills() {
+var wrap = document.getElementById('sourcePills');
+if (!wrap) return;
+var present = {}, sampleLabel = {};
+allItems.forEach(function(it) {
+var info = sourceInfo(it);
+present[info.key] = true;
+sampleLabel[info.key] = info.label;
+});
+wrap.innerHTML = '';
+makeSourcePill('전체', 'all', wrap);
+SOURCE_ORDER.forEach(function(key) {
+if (!present[key]) return;
+makeSourcePill(sampleLabel[key], key, wrap);
+});
+}
+
+function makeSourcePill(label, val, wrap) {
+var b = document.createElement('button');
+b.className = 'pill' + (curSource === val ? ' active' : '');
+b.textContent = label;
+b.onclick = function() { selectSource(val, label); };
+wrap.appendChild(b);
+}
+
+function selectSource(val, label) {
+curSource = val;
+document.getElementById('sourceLabel').textContent = val === 'all' ? '전체' : label;
+toggleSources(false);
+renderItems();
+}
+
+function toggleSources(force) {
+sourceOpen = force !== undefined ? force : !sourceOpen;
+document.getElementById('sourcePills').classList.toggle('open', sourceOpen);
+document.getElementById('sourceArrow').classList.toggle('open', sourceOpen);
+}
+
+function onSearchInput() {
+searchText = document.getElementById('searchInput').value.trim().toLowerCase();
+renderItems();
+}
+
+function matchesFilters(item) {
+var info = sourceInfo(item);
+if (curSource !== 'all' && info.key !== curSource) return false;
+if (searchText) {
+var hay = ((item.title || '') + ' ' + (item.memo || '')).toLowerCase();
+if (hay.indexOf(searchText) === -1) return false;
+}
+return true;
 }
 
 var TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
 var PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="#E8557A" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
 
 function buildCard(item) {
-  var card = document.createElement('div');
-  card.className = 'card' + (editOn ? ' edit' : '');
-  card.dataset.id = item.id;
-  var del = document.createElement('button');
-  del.className = 'cdel'; del.innerHTML = TRASH;
-  del.onclick = function(e) { e.stopPropagation(); openConfirm(item, card); };
-  card.appendChild(del);
+var info = sourceInfo(item);
+var card = document.createElement('div');
+card.className = 'card' + (editOn ? ' edit' : '');
+card.dataset.id = item.id;
+var del = document.createElement('button');
+del.className = 'cdel'; del.innerHTML = TRASH;
+del.onclick = function(e) { e.stopPropagation(); openConfirm(item, card); };
+card.appendChild(del);
 
-  var edit = document.createElement('button');
-  edit.className = 'cedit'; edit.innerHTML = PENCIL;
-  edit.title = '수정';
-  edit.onclick = function(e) { e.stopPropagation(); openCardEdit(item); };
-  card.appendChild(edit);
+var edit = document.createElement('button');
+edit.className = 'cedit'; edit.innerHTML = PENCIL;
+edit.title = '수정';
+edit.onclick = function(e) { e.stopPropagation(); openCardEdit(item); };
+card.appendChild(edit);
 
-  if (item.type === 'image') {
-    var key = item.image_key || '';
-    var src = key ? (key.indexOf('http') === 0 ? proxyImg(key) : WU + '/r2/' + encodeURIComponent(key))
-                  : (item.notion_image_url ? proxyImg(item.notion_image_url) : '');
-    var img = document.createElement('img');
-    img.className = 'thumb'; img.src = src; img.alt = '';
-    img.onerror = function() { img.style.display = 'none'; };
-    card.appendChild(img);
-    var foot = document.createElement('div');
-    foot.className = 'cfoot';
-    foot.innerHTML = '<span class="ctype">🖼 이미지</span>' + (item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '');
-    card.appendChild(foot);
-    card.onclick = function() {
-      if (editOn) return;
-      var imgs = allItems.filter(function(i) { return i.type === 'image'; });
-      openViewer(imgs, imgs.findIndex(function(i) { return i.id === item.id; }));
-    };
+if (item.type === 'image') {
+var key = item.image_key || '';
+var src = key ? (key.indexOf('http') === 0 ? proxyImg(key) : WU + '/r2/' + encodeURIComponent(key))
+: (item.notion_image_url ? proxyImg(item.notion_image_url) : '');
+var img = document.createElement('img');
+img.className = 'thumb'; img.src = src; img.alt = '';
+img.onerror = function() { img.style.display = 'none'; };
+card.appendChild(img);
+var foot = document.createElement('div');
+foot.className = 'cfoot';
+foot.innerHTML = '<span class="ctype">' + info.label + '</span>' + (item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '');
+card.appendChild(foot);
+card.onclick = function() {
+if (editOn) return;
+var imgs = allItems.filter(function(i) { return i.type === 'image'; });
+openViewer(imgs, imgs.findIndex(function(i) { return i.id === item.id; }));
+};
 
-  } else if (item.type === 'link') {
-    if (item.image_key) {
-      var img2 = document.createElement('img');
-      img2.className = 'thumb wide'; img2.src = (item.image_key.indexOf('http') === 0 ? proxyImg(item.image_key) : WU + '/r2/' + encodeURIComponent(item.image_key)); img2.alt = '';
-      img2.onerror = function() { img2.style.display = 'none'; };
-      card.appendChild(img2);
-    }
-    var body = document.createElement('div');
-    body.className = 'cbody';
-    body.innerHTML = '<span class="ctype">🔗 링크</span><div class="ctitle">' + esc(item.title) + '</div>' +
-      (item.url ? '<div class="csub">' + esc(domain(item.url)) + '</div>' : '') +
-      (item.memo ? '<div class="cmemo">' + esc(item.memo) + '</div>' : '') +
-      (item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '');
-    card.appendChild(body);
-    card.onclick = function() { if (!editOn && item.url) window.open(item.url, '_blank'); };
+} else if (item.type === 'link') {
+if (item.image_key) {
+var img2 = document.createElement('img');
+img2.className = 'thumb wide'; img2.src = (item.image_key.indexOf('http') === 0 ? proxyImg(item.image_key) : WU + '/r2/' + encodeURIComponent(item.image_key)); img2.alt = '';
+img2.onerror = function() { img2.style.display = 'none'; };
+card.appendChild(img2);
+}
+var body = document.createElement('div');
+body.className = 'cbody';
+body.innerHTML = '<span class="ctype">' + info.label + '</span><div class="ctitle">' + esc(item.title) + '</div>' +
+(item.url ? '<div class="csub">' + esc(domain(item.url)) + '</div>' : '') +
+(item.memo ? '<div class="cmemo">' + esc(item.memo) + '</div>' : '') +
+(item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '');
+card.appendChild(body);
+card.onclick = function() { if (!editOn && item.url) window.open(item.url, '_blank'); };
 
-  } else {
-    card.innerHTML += '<div class="cmemo-full">' + esc(item.memo || item.title) + '</div>' +
-      '<div class="cbody" style="padding-top:0"><span class="ctype">📝 메모</span>' +
-      (item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '') + '</div>';
-  }
-  return card;
+} else {
+card.innerHTML += '<div class="cmemo-full">' + esc(item.memo || item.title) + '</div>' +
+'<div class="cbody" style="padding-top:0"><span class="ctype">' + info.label + '</span>' +
+(item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '') + '</div>';
+}
+var ctypeEl = card.querySelector('.ctype');
+if (ctypeEl) {
+ctypeEl.style.cursor = 'pointer';
+ctypeEl.onclick = function(e) { e.stopPropagation(); selectSource(info.key, info.label); };
+}
+return card;
 }
 
 // ── 카드 수정 (링크/메모/이미지 공통) ────────────────────────────────────────
 var ceItem = null, ceFolders = [];
 function openCardEdit(item) {
-  ceItem = item;
-  ceFolders = item.folders ? item.folders.slice() : [];
-  var isLink = item.type === 'link';
-  document.getElementById('ceLinkFields').style.display = isLink ? '' : 'none';
-  document.getElementById('ceTitle').value = item.title || '';
-  document.getElementById('ceUrl').value = item.url || '';
-  document.getElementById('ceMemo').value = item.memo || '';
-  var sel = document.getElementById('ceFolderSel');
-  sel.innerHTML = '';
-  allFolders.forEach(function(n) {
-    var b = document.createElement('button');
-    b.className = 'fsel-btn' + (ceFolders.indexOf(n) >= 0 ? ' on' : '');
-    b.textContent = n;
-    b.onclick = function() {
-      var idx = ceFolders.indexOf(n);
-      if (idx >= 0) { ceFolders.splice(idx, 1); b.classList.remove('on'); }
-      else          { ceFolders.push(n);         b.classList.add('on'); }
-    };
-    sel.appendChild(b);
-  });
-  document.getElementById('cardEditOverlay').classList.add('on');
+ceItem = item;
+ceFolders = item.folders ? item.folders.slice() : [];
+var isLink = item.type === 'link';
+document.getElementById('ceLinkFields').style.display = isLink ? '' : 'none';
+document.getElementById('ceTitle').value = item.title || '';
+document.getElementById('ceUrl').value = item.url || '';
+document.getElementById('ceMemo').value = item.memo || '';
+var sel = document.getElementById('ceFolderSel');
+sel.innerHTML = '';
+allFolders.forEach(function(n) {
+var b = document.createElement('button');
+b.className = 'fsel-btn' + (ceFolders.indexOf(n) >= 0 ? ' on' : '');
+b.textContent = n;
+b.onclick = function() {
+var idx = ceFolders.indexOf(n);
+if (idx >= 0) { ceFolders.splice(idx, 1); b.classList.remove('on'); }
+else { ceFolders.push(n); b.classList.add('on'); }
+};
+sel.appendChild(b);
+});
+document.getElementById('cardEditOverlay').classList.add('on');
 }
 function closeCardEdit() {
-  document.getElementById('cardEditOverlay').classList.remove('on');
-  ceItem = null;
+document.getElementById('cardEditOverlay').classList.remove('on');
+ceItem = null;
 }
 function saveCardEdit() {
-  if (!ceItem) return;
-  var payload = { id: ceItem.id, folders: ceFolders, memo: document.getElementById('ceMemo').value.trim() };
-  if (ceItem.type === 'link') {
-    payload.title = document.getElementById('ceTitle').value.trim();
-    payload.url = document.getElementById('ceUrl').value.trim();
-  }
-  apiFetch('/update', 'POST', payload,
-    function() { toast('수정됐어요 🌸'); closeCardEdit(); loadItems(curFolder); },
-    function() { toast('수정 실패'); }
-  );
+if (!ceItem) return;
+var payload = { id: ceItem.id, folders: ceFolders, memo: document.getElementById('ceMemo').value.trim() };
+if (ceItem.type === 'link') {
+payload.title = document.getElementById('ceTitle').value.trim();
+payload.url = document.getElementById('ceUrl').value.trim();
+}
+apiFetch('/update', 'POST', payload,
+function() { toast('수정됐어요 🌸'); closeCardEdit(); loadItems(curFolder); },
+function() { toast('수정 실패'); }
+);
 }
 
 // ── 뷰어 ──────────────────────────────────────────────────────────────────
 function openViewer(imgs, start) {
-  vItems = imgs; vIdx = start;
-  var track = document.getElementById('viewerTrack');
-  var dots = document.getElementById('viewerDots');
-  track.innerHTML = dots.innerHTML = '';
-  imgs.forEach(function(item, i) {
-    var key = item.image_key || '';
-    var src = key ? (key.indexOf('http') === 0 ? proxyImg(key) : WU + '/r2/' + encodeURIComponent(key))
-                  : (item.notion_image_url ? proxyImg(item.notion_image_url) : '');
-    var s = document.createElement('div'); s.className = 'viewer-slide';
-    s.innerHTML = '<img src="' + esc(src) + '" alt="">';
-    track.appendChild(s);
-    var d = document.createElement('div'); d.className = 'vdot' + (i === start ? ' on' : '');
-    dots.appendChild(d);
-  });
-  goViewer(start, false);
-  document.getElementById('viewer').classList.add('on');
-  // 뒤로가기로 닫기 위해 history 스택 쌓기
-  history.pushState({ viewer: true }, '');
-  var wrap = document.getElementById('viewerWrap');
-  wrap.ontouchstart = function(e) { tStart = e.touches[0].clientX; };
-  wrap.ontouchend = function(e) {
-    var dx = e.changedTouches[0].clientX - tStart;
-    if (Math.abs(dx) > 50) goViewer(vIdx + (dx < 0 ? 1 : -1), true);
-  };
+vItems = imgs; vIdx = start;
+var track = document.getElementById('viewerTrack');
+var dots = document.getElementById('viewerDots');
+track.innerHTML = dots.innerHTML = '';
+imgs.forEach(function(item, i) {
+var key = item.image_key || '';
+var src = key ? (key.indexOf('http') === 0 ? proxyImg(key) : WU + '/r2/' + encodeURIComponent(key))
+: (item.notion_image_url ? proxyImg(item.notion_image_url) : '');
+var s = document.createElement('div'); s.className = 'viewer-slide';
+s.innerHTML = '<img src="' + esc(src) + '" alt="">';
+track.appendChild(s);
+var d = document.createElement('div'); d.className = 'vdot' + (i === start ? ' on' : '');
+dots.appendChild(d);
+});
+goViewer(start, false);
+document.getElementById('viewer').classList.add('on');
+// 뒤로가기로 닫기 위해 history 스택 쌓기
+history.pushState({ viewer: true }, '');
+var wrap = document.getElementById('viewerWrap');
+wrap.ontouchstart = function(e) { tStart = e.touches[0].clientX; };
+wrap.ontouchend = function(e) {
+var dx = e.changedTouches[0].clientX - tStart;
+if (Math.abs(dx) > 50) goViewer(vIdx + (dx < 0 ? 1 : -1), true);
+};
 }
 
 function goViewer(idx, anim) {
-  vIdx = Math.max(0, Math.min(vItems.length - 1, idx));
-  var t = document.getElementById('viewerTrack');
-  t.style.transition = anim ? 'transform .3s cubic-bezier(.25,.8,.25,1)' : 'none';
-  t.style.transform = 'translateX(-' + (vIdx * 100) + '%)';
-  document.getElementById('viewerCnt').textContent = (vIdx + 1) + ' / ' + vItems.length;
-  document.querySelectorAll('.vdot').forEach(function(d, i) { d.classList.toggle('on', i === vIdx); });
+vIdx = Math.max(0, Math.min(vItems.length - 1, idx));
+var t = document.getElementById('viewerTrack');
+t.style.transition = anim ? 'transform .3s cubic-bezier(.25,.8,.25,1)' : 'none';
+t.style.transform = 'translateX(-' + (vIdx * 100) + '%)';
+document.getElementById('viewerCnt').textContent = (vIdx + 1) + ' / ' + vItems.length;
+document.querySelectorAll('.vdot').forEach(function(d, i) { d.classList.toggle('on', i === vIdx); });
 }
 
 // X버튼: history.back() → popstate → closeViewerInternal
@@ -604,29 +699,29 @@ function closeViewer() { history.back(); }
 
 // 실제 뷰어 닫기 (popstate에서 호출)
 function closeViewerInternal() {
-  document.getElementById('viewer').classList.remove('on');
-  closeViewerMenu();
-  // 현재 보던 이미지 카드로 스크롤
-  if (vItems[vIdx]) {
-    var card = document.querySelector('[data-id="' + vItems[vIdx].id + '"]');
-    if (card) setTimeout(function() { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-  }
+document.getElementById('viewer').classList.remove('on');
+closeViewerMenu();
+// 현재 보던 이미지 카드로 스크롤
+if (vItems[vIdx]) {
+var card = document.querySelector('[data-id="' + vItems[vIdx].id + '"]');
+if (card) setTimeout(function() { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+}
 }
 
 // 뒤로가기 인터셉트
 window.addEventListener('popstate', function() {
-  if (document.getElementById('viewer').classList.contains('on')) {
-    closeViewerInternal();
-  }
+if (document.getElementById('viewer').classList.contains('on')) {
+closeViewerInternal();
+}
 });
 
 // ⋯ 메뉴
 function toggleViewerMenu(e) {
-  e.stopPropagation();
-  document.getElementById('viewerDropdown').classList.toggle('on');
+e.stopPropagation();
+document.getElementById('viewerDropdown').classList.toggle('on');
 }
 function closeViewerMenu() {
-  document.getElementById('viewerDropdown').classList.remove('on');
+document.getElementById('viewerDropdown').classList.remove('on');
 }
 // 뷰어 바깥 클릭 시 메뉴 닫기
 document.addEventListener('click', function() { closeViewerMenu(); });
@@ -634,208 +729,208 @@ document.addEventListener('click', function() { closeViewerMenu(); });
 // 뷰어에서 폴더 변경
 var _veItem = null, _veFolders = [];
 function viewerEditFolder() {
-  closeViewerMenu();
-  _veItem = vItems[vIdx];
-  _veFolders = _veItem.folders ? _veItem.folders.slice() : [];
-  var sel = document.getElementById('viewerEditFolderSel');
-  sel.innerHTML = '';
-  allFolders.forEach(function(n) {
-    var b = document.createElement('button');
-    b.className = 'fsel-btn' + (_veFolders.indexOf(n) >= 0 ? ' on' : '');
-    b.textContent = n;
-    b.onclick = function() {
-      var idx = _veFolders.indexOf(n);
-      if (idx >= 0) { _veFolders.splice(idx, 1); b.classList.remove('on'); }
-      else          { _veFolders.push(n);         b.classList.add('on'); }
-    };
-    sel.appendChild(b);
-  });
-  document.getElementById('viewerEditOverlay').classList.add('on');
+closeViewerMenu();
+_veItem = vItems[vIdx];
+_veFolders = _veItem.folders ? _veItem.folders.slice() : [];
+var sel = document.getElementById('viewerEditFolderSel');
+sel.innerHTML = '';
+allFolders.forEach(function(n) {
+var b = document.createElement('button');
+b.className = 'fsel-btn' + (_veFolders.indexOf(n) >= 0 ? ' on' : '');
+b.textContent = n;
+b.onclick = function() {
+var idx = _veFolders.indexOf(n);
+if (idx >= 0) { _veFolders.splice(idx, 1); b.classList.remove('on'); }
+else { _veFolders.push(n); b.classList.add('on'); }
+};
+sel.appendChild(b);
+});
+document.getElementById('viewerEditOverlay').classList.add('on');
 }
 function closeViewerEdit() { document.getElementById('viewerEditOverlay').classList.remove('on'); }
 function saveViewerEdit() {
-  if (!_veItem) return;
-  apiFetch('/update', 'POST', { id: _veItem.id, folders: _veFolders },
-    function() {
-      _veItem.folders = _veFolders.slice();
-      toast('수정됐어요 🌸');
-      closeViewerEdit();
-      loadItems(curFolder);
-    },
-    function() { toast('수정 실패'); }
-  );
+if (!_veItem) return;
+apiFetch('/update', 'POST', { id: _veItem.id, folders: _veFolders },
+function() {
+_veItem.folders = _veFolders.slice();
+toast('수정됐어요 🌸');
+closeViewerEdit();
+loadItems(curFolder);
+},
+function() { toast('수정 실패'); }
+);
 }
 
 // 뷰어에서 삭제
 function viewerDeleteItem() {
-  closeViewerMenu();
-  delPending = { item: vItems[vIdx], card: null };
-  document.getElementById('confirmOverlay').classList.add('on');
+closeViewerMenu();
+delPending = { item: vItems[vIdx], card: null };
+document.getElementById('confirmOverlay').classList.add('on');
 }
 
 // ── 삭제 ──────────────────────────────────────────────────────────────────
 function openConfirm(item, card) { delPending = {item:item, card:card}; document.getElementById('confirmOverlay').classList.add('on'); }
 function closeConfirm() { delPending = null; document.getElementById('confirmOverlay').classList.remove('on'); }
 function doDelete() {
-  if (!delPending) return;
-  var item = delPending.item, card = delPending.card;
-  closeConfirm();
-  apiFetch('/delete', 'POST', {id:item.id, image_key:item.image_key},
-    function() {
-      allItems = allItems.filter(function(i) { return i.id !== item.id; });
-      if (card) {
-        card.style.transition = 'all .2s'; card.style.opacity = '0'; card.style.transform = 'scale(0.8)';
-        setTimeout(function() { card.remove(); }, 200);
-      } else {
-        // 뷰어에서 삭제한 경우
-        closeViewer();
-        setTimeout(function() { loadItems(curFolder); }, 350);
-      }
-      toast('삭제했어요');
-    },
-    function() { toast('삭제 실패'); }
-  );
+if (!delPending) return;
+var item = delPending.item, card = delPending.card;
+closeConfirm();
+apiFetch('/delete', 'POST', {id:item.id, image_key:item.image_key},
+function() {
+allItems = allItems.filter(function(i) { return i.id !== item.id; });
+if (card) {
+card.style.transition = 'all .2s'; card.style.opacity = '0'; card.style.transform = 'scale(0.8)';
+setTimeout(function() { card.remove(); }, 200);
+} else {
+// 뷰어에서 삭제한 경우
+closeViewer();
+setTimeout(function() { loadItems(curFolder); }, 350);
+}
+toast('삭제했어요');
+},
+function() { toast('삭제 실패'); }
+);
 }
 
 // ── 편집 ──────────────────────────────────────────────────────────────────
 function toggleEdit() {
-  editOn = !editOn;
-  document.getElementById('editIcon').outerHTML = editOn
-    ? '<svg id="editIcon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#4CAF50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
-    : '<svg id="editIcon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#E8557A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
-  document.getElementById('editBar').classList.toggle('on', editOn);
-  document.querySelectorAll('.card').forEach(function(c) { c.classList.toggle('edit', editOn); });
+editOn = !editOn;
+document.getElementById('editIcon').outerHTML = editOn
+? '<svg id="editIcon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#4CAF50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+: '<svg id="editIcon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#E8557A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
+document.getElementById('editBar').classList.toggle('on', editOn);
+document.querySelectorAll('.card').forEach(function(c) { c.classList.toggle('edit', editOn); });
 }
 
 // ── 설정 ──────────────────────────────────────────────────────────────────
 function updateCfgPreview() {
-  var v = document.getElementById('cfgUrl').value.trim();
-  document.getElementById('cfgUrlPreview').textContent = v || '___';
+var v = document.getElementById('cfgUrl').value.trim();
+document.getElementById('cfgUrlPreview').textContent = v || '___';
 }
 function openSettings() {
-  document.getElementById('cfgUrl').value = WU_ACCOUNT;
-  document.getElementById('cfgKey').value = SK;
-  updateCfgPreview();
-  document.getElementById('settingsOverlay').classList.add('on');
+document.getElementById('cfgUrl').value = WU_ACCOUNT;
+document.getElementById('cfgKey').value = SK;
+updateCfgPreview();
+document.getElementById('settingsOverlay').classList.add('on');
 }
 function closeSettings() { document.getElementById('settingsOverlay').classList.remove('on'); }
 function saveSettings() {
-  WU_ACCOUNT = document.getElementById('cfgUrl').value.trim();
-  WU = damdamBuildWorkerUrl(WU_ACCOUNT);
-  SK = document.getElementById('cfgKey').value.trim();
-  localStorage.setItem('damdam_worker_account', WU_ACCOUNT);
-  localStorage.setItem('damdam_secret_key', SK);
-  closeSettings(); toast('설정 저장 완료!');
-  setTimeout(function() { location.reload(); }, 800);
+WU_ACCOUNT = document.getElementById('cfgUrl').value.trim();
+WU = damdamBuildWorkerUrl(WU_ACCOUNT);
+SK = document.getElementById('cfgKey').value.trim();
+localStorage.setItem('damdam_worker_account', WU_ACCOUNT);
+localStorage.setItem('damdam_secret_key', SK);
+closeSettings(); toast('설정 저장 완료!');
+setTimeout(function() { location.reload(); }, 800);
 }
 function runInstagramBackfill() { var btn = document.getElementById('igBackfillBtn'); btn.disabled = true; btn.textContent = '가져오는 중...'; apiFetch('/backfill-instagram-images', 'POST', {}, function(data) { btn.disabled = false; btn.textContent = '📸 기존 인스타그램 이미지 다시 가져오기'; if (data && data.success) { toast((data.updated || 0) + '개 항목에 이미지를 채웠어요 (검사 ' + (data.checked || 0) + '개)'); if (data.updated) loadAll(); } else { toast('실패했어요: ' + ((data && data.error) || '알 수 없는 오류')); } }, function() { btn.disabled = false; btn.textContent = '📸 기존 인스타그램 이미지 다시 가져오기'; toast('요청 실패'); }); } async function resetApp() {
-  if ('serviceWorker' in navigator) {
-    var regs = await navigator.serviceWorker.getRegistrations();
-    for (var r of regs) await r.unregister();
-    var keys = await caches.keys();
-    for (var k of keys) await caches.delete(k);
-  }
-  toast('초기화 완료! 새로고침합니다...');
-  setTimeout(function() { location.reload(true); }, 1000);
+if ('serviceWorker' in navigator) {
+var regs = await navigator.serviceWorker.getRegistrations();
+for (var r of regs) await r.unregister();
+var keys = await caches.keys();
+for (var k of keys) await caches.delete(k);
+}
+toast('초기화 완료! 새로고침합니다...');
+setTimeout(function() { location.reload(true); }, 1000);
 }
 
 // ── 직접 추가 ─────────────────────────────────────────────────────────────
 function openAdd() {
-  addType = 'link'; addFolders = [];
-  document.getElementById('addUrl').value = '';
-  document.getElementById('addMemoNote').value = '';
-  document.getElementById('addMemoText').value = '';
-  document.getElementById('addPreview').innerHTML = '';
-  document.getElementById('addFile').value = '';
-  document.querySelectorAll('.ttab').forEach(function(t, i) { t.classList.toggle('on', i === 0); });
-  document.getElementById('addLink').style.display = '';
-  document.getElementById('addImage').style.display = 'none';
-  document.getElementById('addMemo').style.display = 'none';
-  document.getElementById('addMemoWrap').style.display = '';
-  renderAddFolders();
-  document.getElementById('addOverlay').classList.add('on');
+addType = 'link'; addFolders = [];
+document.getElementById('addUrl').value = '';
+document.getElementById('addMemoNote').value = '';
+document.getElementById('addMemoText').value = '';
+document.getElementById('addPreview').innerHTML = '';
+document.getElementById('addFile').value = '';
+document.querySelectorAll('.ttab').forEach(function(t, i) { t.classList.toggle('on', i === 0); });
+document.getElementById('addLink').style.display = '';
+document.getElementById('addImage').style.display = 'none';
+document.getElementById('addMemo').style.display = 'none';
+document.getElementById('addMemoWrap').style.display = '';
+renderAddFolders();
+document.getElementById('addOverlay').classList.add('on');
 }
 function closeAdd() { document.getElementById('addOverlay').classList.remove('on'); }
 function setAddType(t, btn) {
-  addType = t;
-  document.querySelectorAll('.ttab').forEach(function(b) { b.classList.remove('on'); });
-  btn.classList.add('on');
-  document.getElementById('addLink').style.display = t === 'link' ? '' : 'none';
-  document.getElementById('addImage').style.display = t === 'image' ? '' : 'none';
-  document.getElementById('addMemo').style.display = t === 'memo' ? '' : 'none';
-  document.getElementById('addMemoWrap').style.display = t === 'memo' ? 'none' : '';
+addType = t;
+document.querySelectorAll('.ttab').forEach(function(b) { b.classList.remove('on'); });
+btn.classList.add('on');
+document.getElementById('addLink').style.display = t === 'link' ? '' : 'none';
+document.getElementById('addImage').style.display = t === 'image' ? '' : 'none';
+document.getElementById('addMemo').style.display = t === 'memo' ? '' : 'none';
+document.getElementById('addMemoWrap').style.display = t === 'memo' ? 'none' : '';
 }
 function renderAddFolders() {
-  var sel = document.getElementById('addFolderSel'); sel.innerHTML = '';
-  allFolders.forEach(function(n) {
-    var b = document.createElement('button'); b.className = 'fsel-btn'; b.textContent = n;
-    b.onclick = function() {
-      var idx = addFolders.indexOf(n);
-      if (idx >= 0) { addFolders.splice(idx, 1); b.classList.remove('on'); }
-      else          { addFolders.push(n);         b.classList.add('on'); }
-    };
-    sel.appendChild(b);
-  });
+var sel = document.getElementById('addFolderSel'); sel.innerHTML = '';
+allFolders.forEach(function(n) {
+var b = document.createElement('button'); b.className = 'fsel-btn'; b.textContent = n;
+b.onclick = function() {
+var idx = addFolders.indexOf(n);
+if (idx >= 0) { addFolders.splice(idx, 1); b.classList.remove('on'); }
+else { addFolders.push(n); b.classList.add('on'); }
+};
+sel.appendChild(b);
+});
 }
 function previewAdd(input) {
-  var p = document.getElementById('addPreview'); p.innerHTML = '';
-  Array.from(input.files).forEach(function(f) {
-    var img = document.createElement('img'); img.src = URL.createObjectURL(f); p.appendChild(img);
-  });
+var p = document.getElementById('addPreview'); p.innerHTML = '';
+Array.from(input.files).forEach(function(f) {
+var img = document.createElement('img'); img.src = URL.createObjectURL(f); p.appendChild(img);
+});
 }
 function submitAdd() {
-  var btn = document.getElementById('addBtn');
-  btn.disabled = true; btn.textContent = '저장 중...';
-  var done = function() { btn.disabled = false; btn.textContent = '저장'; };
+var btn = document.getElementById('addBtn');
+btn.disabled = true; btn.textContent = '저장 중...';
+var done = function() { btn.disabled = false; btn.textContent = '저장'; };
 
-  if (addType === 'link') {
-    var url = document.getElementById('addUrl').value.trim();
-    if (!url) { toast('URL을 입력해주세요'); done(); return; }
-    apiFetch('/save-link', 'POST', {url:url, folders:addFolders, memo:document.getElementById('addMemoNote').value.trim()},
-      function() { toast('담았어요 🌸'); closeAdd(); loadItems(curFolder); done(); },
-      function() { toast('저장 실패'); done(); });
+if (addType === 'link') {
+var url = document.getElementById('addUrl').value.trim();
+if (!url) { toast('URL을 입력해주세요'); done(); return; }
+apiFetch('/save-link', 'POST', {url:url, folders:addFolders, memo:document.getElementById('addMemoNote').value.trim()},
+function() { toast('담았어요 🌸'); closeAdd(); loadItems(curFolder); done(); },
+function() { toast('저장 실패'); done(); });
 
-  } else if (addType === 'image') {
-    var files = document.getElementById('addFile').files;
-    if (!files.length) { toast('이미지를 선택해주세요'); done(); return; }
-    var fd = new FormData();
-    Array.from(files).forEach(function(f) { fd.append('images', f); });
-    addFolders.forEach(function(f){fd.append('folders[]',f)});
-    fd.append('memo', document.getElementById('addMemoNote').value.trim());
-    fetch(WU + '/save-images', {method:'POST', headers:{'X-Secret-Key':SK}, body:fd})
-      .then(function() { toast('담았어요 🌸'); closeAdd(); loadItems(curFolder); done(); })
-      .catch(function() { toast('저장 실패'); done(); });
+} else if (addType === 'image') {
+var files = document.getElementById('addFile').files;
+if (!files.length) { toast('이미지를 선택해주세요'); done(); return; }
+var fd = new FormData();
+Array.from(files).forEach(function(f) { fd.append('images', f); });
+addFolders.forEach(function(f){fd.append('folders[]',f)});
+fd.append('memo', document.getElementById('addMemoNote').value.trim());
+fetch(WU + '/save-images', {method:'POST', headers:{'X-Secret-Key':SK}, body:fd})
+.then(function() { toast('담았어요 🌸'); closeAdd(); loadItems(curFolder); done(); })
+.catch(function() { toast('저장 실패'); done(); });
 
-  } else {
-    var txt = document.getElementById('addMemoText').value.trim();
-    if (!txt) { toast('내용을 입력해주세요'); done(); return; }
-    apiFetch('/save-link', 'POST', {title:txt, url:'', folders:addFolders, memo:txt},
-      function() { toast('담았어요 🌸'); closeAdd(); loadItems(curFolder); done(); },
-      function() { toast('저장 실패'); done(); });
-  }
+} else {
+var txt = document.getElementById('addMemoText').value.trim();
+if (!txt) { toast('내용을 입력해주세요'); done(); return; }
+apiFetch('/save-link', 'POST', {title:txt, url:'', folders:addFolders, memo:txt},
+function() { toast('담았어요 🌸'); closeAdd(); loadItems(curFolder); done(); },
+function() { toast('저장 실패'); done(); });
+}
 }
 
 // ── API (콜백 방식 - async/await 없음) ───────────────────────────────────
 function apiFetch(path, method, body, onOk, onErr) {
-  var xhr = new XMLHttpRequest();
-  xhr.open(method, WU + path, true);
-  xhr.setRequestHeader('X-Secret-Key', SK);
-  if (body && method !== 'GET') xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.timeout = 10000;
-  xhr.onload = function() {
-    try { onOk(JSON.parse(xhr.responseText)); } catch(e) { onErr(e); }
-  };
-  xhr.onerror = onErr;
-  xhr.ontimeout = onErr;
-  xhr.send(body && method !== 'GET' ? JSON.stringify(body) : null);
+var xhr = new XMLHttpRequest();
+xhr.open(method, WU + path, true);
+xhr.setRequestHeader('X-Secret-Key', SK);
+if (body && method !== 'GET') xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.timeout = 10000;
+xhr.onload = function() {
+try { onOk(JSON.parse(xhr.responseText)); } catch(e) { onErr(e); }
+};
+xhr.onerror = onErr;
+xhr.ontimeout = onErr;
+xhr.send(body && method !== 'GET' ? JSON.stringify(body) : null);
 }
 
 // ── 유틸 ──────────────────────────────────────────────────────────────────
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }function proxyImg(u) { return u ? (WU + '/img-proxy?u=' + encodeURIComponent(u)) : u; }
 function domain(u) { try { return new URL(u).hostname; } catch(e) { return u; } }
 function toast(msg) {
-  var el = document.createElement('div'); el.className = 'toast'; el.textContent = msg;
-  document.body.appendChild(el); setTimeout(function() { el.remove(); }, 2700);
+var el = document.createElement('div'); el.className = 'toast'; el.textContent = msg;
+document.body.appendChild(el); setTimeout(function() { el.remove(); }, 2700);
 }
 </script>
 </body>
