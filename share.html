@@ -467,6 +467,7 @@ let shareData = null;
 let sharedFiles = [];
 let selectedFolders = [];
 let groupSelection = new Set();
+let thumbChecks = {};
 
 function toggleGroupSelect(idx, wrap) {
   if (groupSelection.has(idx)) {
@@ -477,12 +478,22 @@ function toggleGroupSelect(idx, wrap) {
     wrap.classList.add('grouped');
   }
 
+  updateOrderBadges();
+
   const hint = document.getElementById('groupHint');
   if (hint) {
     hint.textContent = groupSelection.size >= 2
-      ? `선택한 ${groupSelection.size}장을 하나로 묶어 저장해요`
-      : '여러 장을 눌러 선택하면 하나로 묶어 저장할 수 있어요';
+      ? `숫자는 저장될 순서예요. 다시 누르면 선택이 풀리고, 다시 누르면 맨 뒤 순서로 다시 선택돼요`
+      : '원하는 순서대로 여러 장을 눌러 선택하면 그 순서로 하나로 묶어 저장할 수 있어요';
   }
+}
+
+function updateOrderBadges() {
+  const order = Array.from(groupSelection);
+  order.forEach(function(idx, i) {
+    const check = thumbChecks[idx];
+    if (check) check.textContent = String(i + 1);
+  });
 }
 
 function init() {
@@ -597,6 +608,7 @@ function renderPreview() {
     grid.className = 'preview-thumb-grid';
 
     groupSelection = new Set();
+    thumbChecks = {};
 
     sharedFiles.forEach((file, idx) => {
       const wrap = document.createElement('div');
@@ -612,6 +624,7 @@ function renderPreview() {
         check.className = 'thumb-check';
         check.textContent = '✓';
         wrap.appendChild(check);
+        thumbChecks[idx] = check;
 
         wrap.onclick = function() {
           toggleGroupSelect(idx, wrap);
@@ -632,7 +645,7 @@ function renderPreview() {
       const hint = document.createElement('div');
       hint.className = 'group-hint';
       hint.id = 'groupHint';
-      hint.textContent = '여러 장을 눌러 선택하면 하나로 묶어 저장할 수 있어요';
+      hint.textContent = '원하는 순서대로 여러 장을 눌러 선택하면 그 순서로 하나로 묶어 저장할 수 있어요';
       area.appendChild(hint);
     }
 
