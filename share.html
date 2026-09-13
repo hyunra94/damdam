@@ -130,12 +130,55 @@
       margin-bottom: 20px;
     }
 
-    .preview-thumb-grid img {
+    .thumb-wrap {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      cursor: pointer;
+    }
+
+    .thumb-wrap img {
       width: 52px;
       height: 52px;
       border-radius: 10px;
       object-fit: cover;
       background: var(--pink-light);
+      display: block;
+      transition: opacity .15s;
+    }
+
+    .thumb-wrap.grouped img {
+      opacity: .85;
+      outline: 3px solid var(--pink-deep);
+      outline-offset: -3px;
+    }
+
+    .thumb-check {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--pink-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: transparent;
+    }
+
+    .thumb-wrap.grouped .thumb-check {
+      background: var(--pink-deep);
+      border-color: var(--pink-deep);
+      color: #fff;
+    }
+
+    .group-hint {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin: -10px 0 14px;
     }
 
     .preview-icon {
@@ -423,6 +466,24 @@ async function matchFirst(cache, keys) {
 let shareData = null;
 let sharedFiles = [];
 let selectedFolders = [];
+let groupSelection = new Set();
+
+function toggleGroupSelect(idx, wrap) {
+  if (groupSelection.has(idx)) {
+    groupSelection.delete(idx);
+    wrap.classList.remove('grouped');
+  } else {
+    groupSelection.add(idx);
+    wrap.classList.add('grouped');
+  }
+
+  const hint = document.getElementById('groupHint');
+  if (hint) {
+    hint.textContent = groupSelection.size >= 2
+      ? `선택한 ${groupSelection.size}장을 하나로 묶어 저장해요`
+      : '여러 장을 눌러 선택하면 하나로 묶어 저장할 수 있어요';
+  }
+}
 
 function init() {
   if (!WORKER_URL || !SECRET_KEY) {
@@ -535,20 +596,44 @@ function renderPreview() {
     const grid = document.createElement('div');
     grid.className = 'preview-thumb-grid';
 
-    sharedFiles.forEach(file => {
+    groupSelection = new Set();
+
+    sharedFiles.forEach((file, idx) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'thumb-wrap';
+
       const img = document.createElement('img');
       img.src = URL.createObjectURL(file);
       img.alt = file.name;
-      grid.appendChild(img);
+      wrap.appendChild(img);
+
+      if (sharedFiles.length > 1) {
+        const check = document.createElement('div');
+        check.className = 'thumb-check';
+        check.textContent = '✓';
+        wrap.appendChild(check);
+
+        wrap.onclick = function() {
+          toggleGroupSelect(idx, wrap);
+        };
+      }
+
+      grid.appendChild(wrap);
     });
 
     area.appendChild(grid);
 
     if (sharedFiles.length > 1) {
       const badge = document.createElement('div');
-      badge.style.cssText = 'font-size:13px;color:#888;margin-bottom:16px;';
+      badge.style.cssText = 'font-size:13px;color:#888;margin-bottom:4px;';
       badge.textContent = `이미지 ${sharedFiles.length}개`;
       area.appendChild(badge);
+
+      const hint = document.createElement('div');
+      hint.className = 'group-hint';
+      hint.id = 'groupHint';
+      hint.textContent = '여러 장을 눌러 선택하면 하나로 묶어 저장할 수 있어요';
+      area.appendChild(hint);
     }
 
   } else if (shareData.type === 'link') {
@@ -757,6 +842,10 @@ async function saveShare() {
 
     if (memo) {
       fd.append('memo', memo);
+    }
+
+    if (groupSelection.size >= 2) {
+      fd.append('group', Array.from(groupSelection).join(','));
     }
 
     const xhr = new XMLHttpRequest();
