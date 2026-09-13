@@ -149,6 +149,13 @@ textarea.finput{resize:none;line-height:1.5}
 .folder-sel{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .fsel-btn{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:500;border:2px solid var(--pink-l);background:var(--white);color:var(--sub);cursor:pointer;font-family:inherit;transition:all .15s}
 .fsel-btn.on{background:var(--pink-p);border-color:var(--pink);color:var(--pink-d);font-weight:700}
+.reorder-list{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.reorder-row{display:flex;align-items:center;gap:10px;background:var(--pink-p);border:2px solid var(--pink-l);border-radius:14px;padding:8px}
+.reorder-row .rnum{width:22px;height:22px;border-radius:50%;background:var(--pink-d);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.reorder-row img{width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0}
+.reorder-row .rbtns{margin-left:auto;display:flex;gap:6px}
+.reorder-row .rbtn{width:32px;height:32px;border-radius:10px;border:2px solid var(--pink-l);background:var(--white);color:var(--sub);font-size:15px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.reorder-row .rbtn:disabled{opacity:.35;cursor:not-allowed}
 .file-pick{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border:2px dashed var(--pink-l);border-radius:12px;cursor:pointer;color:var(--pink-d);font-size:14px;font-weight:500;margin-top:6px}
 .file-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .file-preview img{width:64px;height:64px;object-fit:cover;border-radius:10px}
@@ -221,6 +228,7 @@ textarea.finput{resize:none;line-height:1.5}
 <button class="viewer-more" onclick="toggleViewerMenu(event)">⋯</button>
 <div class="viewer-dropdown" id="viewerDropdown">
 <button onclick="viewerEditFolder()">✏️ 폴더 변경</button>
+<button id="viewerReorderBtn" onclick="viewerReorder()" style="display:none">🔀 순서 변경</button>
 <button onclick="viewerDeleteItem()">🗑️ 삭제</button>
 </div>
 <button class="viewer-x" onclick="closeViewer()">✕</button>
@@ -240,6 +248,16 @@ textarea.finput{resize:none;line-height:1.5}
 <div class="flabel">폴더</div>
 <div class="folder-sel" id="viewerEditFolderSel"></div>
 <button class="fbtn" onclick="saveViewerEdit()">저장</button>
+</div>
+</div>
+
+<!-- 뷰어 순서 변경 시트 -->
+<div class="overlay" id="reorderOverlay" onclick="if(event.target===this)closeReorder()">
+<div class="sheet">
+<button class="sheet-close" onclick="closeReorder()">✕</button>
+<div class="sheet-title">🔀 순서 변경</div>
+<div class="reorder-list" id="reorderList"></div>
+<button class="fbtn" onclick="saveReorder()">저장</button>
 </div>
 </div>
 
@@ -689,6 +707,8 @@ var d = document.createElement('div'); d.className = 'vdot' + (i === start ? ' o
 dots.appendChild(d);
 });
 goViewer(start, false);
+var reorderBtn = document.getElementById('viewerReorderBtn');
+if (reorderBtn) reorderBtn.style.display = (imgs.length > 1 && imgs[0]._groupKey) ? '' : 'none';
 document.getElementById('viewer').classList.add('on');
 // 뒤로가기로 닫기 위해 history 스택 쌓기
 history.pushState({ viewer: true }, '');
@@ -773,6 +793,78 @@ closeViewerEdit();
 loadItems(curFolder);
 },
 function() { toast('수정 실패'); }
+);
+}
+
+// 뷰어에서 순서 변경 (묶음 이미지)
+var _roKeys = [];
+function viewerReorder() {
+closeViewerMenu();
+var cur = vItems[vIdx];
+if (!cur._groupKey) return;
+_roKeys = imageKeys({ image_key: cur._groupKey });
+renderReorderList();
+document.getElementById('reorderOverlay').classList.add('on');
+}
+function closeReorder() { document.getElementById('reorderOverlay').classList.remove('on'); }
+function renderReorderList() {
+var list = document.getElementById('reorderList');
+list.innerHTML = '';
+_roKeys.forEach(function(key, i) {
+var row = document.createElement('div');
+row.className = 'reorder-row';
+var num = document.createElement('div');
+num.className = 'rnum'; num.textContent = (i + 1);
+row.appendChild(num);
+var img = document.createElement('img');
+img.src = key.indexOf('http') === 0 ? proxyImg(key) : WU + '/r2/' + encodeURIComponent(key);
+img.alt = '';
+row.appendChild(img);
+var btns = document.createElement('div');
+btns.className = 'rbtns';
+var up = document.createElement('button');
+up.className = 'rbtn'; up.textContent = '↑'; up.disabled = (i === 0);
+up.onclick = function() { moveReorderItem(i, -1); };
+var down = document.createElement('button');
+down.className = 'rbtn'; down.textContent = '↓'; down.disabled = (i === _roKeys.length - 1);
+down.onclick = function() { moveReorderItem(i, 1); };
+btns.appendChild(up); btns.appendChild(down);
+row.appendChild(btns);
+list.appendChild(row);
+});
+}
+function moveReorderItem(i, dir) {
+var j = i + dir;
+if (j < 0 || j >= _roKeys.length) return;
+var tmp = _roKeys[i]; _roKeys[i] = _roKeys[j]; _roKeys[j] = tmp;
+renderReorderList();
+}
+function saveReorder() {
+var cur = vItems[vIdx];
+var newKey = _roKeys.join('|');
+apiFetch('/update', 'POST', { id: cur.id, image_key: newKey },
+function() {
+toast('순서가 바뀌었어요 🌸');
+closeReorder();
+vItems = _roKeys.map(function(k) {
+return Object.assign({}, cur, { image_key: k, _groupKey: newKey });
+});
+var track = document.getElementById('viewerTrack');
+var dots = document.getElementById('viewerDots');
+track.innerHTML = dots.innerHTML = '';
+vItems.forEach(function(item, i) {
+var key = item.image_key || '';
+var src = key.indexOf('http') === 0 ? proxyImg(key) : WU + '/r2/' + encodeURIComponent(key);
+var s = document.createElement('div'); s.className = 'viewer-slide';
+s.innerHTML = '<img src="' + esc(src) + '" alt="">';
+track.appendChild(s);
+var d = document.createElement('div'); d.className = 'vdot' + (i === 0 ? ' on' : '');
+dots.appendChild(d);
+});
+goViewer(0, false);
+loadItems(curFolder);
+},
+function() { toast('저장 실패'); }
 );
 }
 
