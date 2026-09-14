@@ -94,6 +94,7 @@ background-attachment:fixed;
 /* 모달 공통 */
 .overlay{display:none;position:fixed;inset:0;background:rgba(74,58,70,.45);z-index:50;align-items:flex-end;justify-content:center}
 .overlay.on{display:flex}
+#viewerEditOverlay,#reorderOverlay{z-index:150}
 .sheet{width:100%;max-width:var(--app-max);background:var(--white);border-radius:24px 24px 0 0;border-top:3px solid var(--pink-d);padding:20px 20px calc(20px + env(safe-area-inset-bottom));position:relative;animation:su .25s ease;max-height:85dvh;overflow-y:auto}
 @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .sheet-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:16px}
