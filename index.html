@@ -72,6 +72,13 @@ background-attachment:fixed;
 @keyframes wg{from{transform:rotate(-1.5deg)}to{transform:rotate(1.5deg)}}
 .cedit{position:absolute;top:6px;right:38px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.92);border:1.5px solid var(--pink-l);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:2px 2px 0 rgba(74,58,70,.1);z-index:2}
 .cedit svg{width:12px;height:12px}
+/* 인사이트 체크 버튼 */
+.ins-row{display:flex;flex-wrap:wrap;gap:4px;padding:0 8px 9px}
+.ins-btn{font-size:10.5px;font-weight:600;padding:3px 7px;border-radius:8px;border:1.5px solid var(--pink-l);background:#fff;color:#B8AAB5;font-family:inherit;cursor:pointer;transition:transform .08s}
+.ins-btn:active{transform:translate(1px,1px)}
+.ins-btn.on.done{background:#E6F6EA;border-color:#6BBF7B;color:#2F8A43}
+.ins-btn.on.dosirak{background:var(--pink-p);border-color:var(--pink);color:var(--pink-d)}
+.ins-btn.on.cook{background:#F1EAFB;border-color:var(--lav-d);color:#7A5DB5}
 
 /* 빈/로딩 */
 .empty{text-align:center;padding:60px 20px;color:var(--sub);column-span:all}
@@ -197,6 +204,7 @@ textarea.finput{resize:none;line-height:1.5}
 
 <div style="padding:10px 12px 0">
 <input class="finput" id="searchInput" placeholder="🔍 제목·메모 검색" oninput="onSearchInput()" style="font-size:13px;padding:9px 14px">
+<button class="pill" id="insFilterBtn" onclick="toggleInsFilter()" style="display:none;margin-top:8px"></button>
 </div>
 
 <div class="grid" id="grid">
@@ -483,6 +491,7 @@ document.getElementById('grid').innerHTML = html;
 }
 
 function renderItems() {
+renderInsFilter();
 if (!allItems.length) {
 showGrid('<div class="empty"><div class="eico">🌸</div><div class="etit">아직 저장된 게 없어요</div><div class="esub">공유 버튼으로 담담에 저장해보세요!</div></div>');
 renderSourcePills();
@@ -562,6 +571,7 @@ renderItems();
 function matchesFilters(item) {
 var info = sourceInfo(item);
 if (curSource !== 'all' && info.key !== curSource) return false;
+if (insFilterActive() && (!isInsight(item) || insState(item.memo).done)) return false;
 if (searchText) {
 var hay = ((item.title || '') + ' ' + (item.memo || '')).toLowerCase();
 if (hay.indexOf(searchText) === -1) return false;
@@ -631,13 +641,13 @@ var body = document.createElement('div');
 body.className = 'cbody';
 body.innerHTML = '<span class="ctype">' + info.label + '</span><div class="ctitle">' + esc(item.title) + '</div>' +
 (item.url ? '<div class="csub">' + esc(domain(item.url)) + '</div>' : '') +
-(item.memo ? '<div class="cmemo">' + esc(item.memo) + '</div>' : '') +
+(stripInsTags(item.memo) ? '<div class="cmemo">' + esc(stripInsTags(item.memo)) + '</div>' : '') +
 (item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '');
 card.appendChild(body);
 card.onclick = function() { if (!editOn && item.url) window.open(item.url, '_blank'); };
 
 } else {
-card.innerHTML += '<div class="cmemo-full">' + esc(item.memo || item.title) + '</div>' +
+card.innerHTML += '<div class="cmemo-full">' + esc(stripInsTags(item.memo) || item.title) + '</div>' +
 '<div class="cbody" style="padding-top:0"><span class="ctype">' + info.label + '</span>' +
 (item.folders && item.folders.length ? '<div class="cfolder"># ' + item.folders.map(esc).join(' · ') + '</div>' : '') + '</div>';
 }
@@ -646,7 +656,90 @@ if (ctypeEl) {
 ctypeEl.style.cursor = 'pointer';
 ctypeEl.onclick = function(e) { e.stopPropagation(); selectSource(info.key, info.label); };
 }
+if (isInsight(item)) card.appendChild(buildInsRow(item, card));
 return card;
+}
+
+// ── 인사이트 체크 (메모 끝에 태그로 저장) ───────────────────────────────────
+var INSIGHT_FOLDER = '인사이트';
+var INS_TAGS = { done: '#콘텐츠완료', dosirak: '#도시락', cook: '#일반요리' };
+var INS_LABELS = { done: '🎬 제작완료', dosirak: '🍱 도시락', cook: '🍳 일반요리' };
+var insUndoneOnly = false;
+
+// 미제작만 보기: 인사이트 폴더를 보고 있을 때만 노출
+function insFolderSelected() { return curFolder !== 'all' && curFolder.indexOf(INSIGHT_FOLDER) >= 0; }
+function insFilterActive() { return insUndoneOnly && insFolderSelected(); }
+function renderInsFilter() {
+var btn = document.getElementById('insFilterBtn');
+if (!btn) return;
+btn.style.display = insFolderSelected() ? '' : 'none';
+var n = allItems.filter(function(i) { return isInsight(i) && !insState(i.memo).done; }).length;
+btn.textContent = '🎬 미제작만 보기 (' + n + ')';
+btn.classList.toggle('active', insUndoneOnly);
+}
+function toggleInsFilter() {
+insUndoneOnly = !insUndoneOnly;
+renderItems();
+}
+
+function isInsight(item) {
+return (item.folders || []).some(function(f) { return f.indexOf(INSIGHT_FOLDER) >= 0; });
+}
+function insTagRe(tag) { return new RegExp('(^|\\s)' + tag + '(?=\\s|$)', 'g'); }
+function insState(memo) {
+var s = {};
+Object.keys(INS_TAGS).forEach(function(k) { s[k] = insTagRe(INS_TAGS[k]).test(memo || ''); });
+return s;
+}
+function stripInsTags(memo) {
+var m = memo || '';
+Object.keys(INS_TAGS).forEach(function(k) { m = m.replace(insTagRe(INS_TAGS[k]), '$1'); });
+return m.replace(/[ \t]+$/gm, '').trim();
+}
+function buildInsMemo(memo, state) {
+var base = stripInsTags(memo);
+var tags = Object.keys(INS_TAGS).filter(function(k) { return state[k]; }).map(function(k) { return INS_TAGS[k]; });
+return base + (base && tags.length ? '\n' : '') + tags.join(' ');
+}
+function buildInsRow(item, card) {
+var row = document.createElement('div');
+row.className = 'ins-row';
+var state = insState(item.memo);
+Object.keys(INS_TAGS).forEach(function(k) {
+var b = document.createElement('button');
+b.className = 'ins-btn ' + k + (state[k] ? ' on' : '');
+b.textContent = INS_LABELS[k];
+b.onclick = function(e) { e.stopPropagation(); toggleIns(item, k, card); };
+row.appendChild(b);
+});
+return row;
+}
+function toggleIns(item, key, card) {
+var state = insState(item.memo);
+if (key === 'done') {
+state.done = !state.done;
+} else {
+// 도시락/일반요리는 둘 중 하나만
+var on = !state[key];
+state.dosirak = false; state.cook = false;
+state[key] = on;
+}
+var prevMemo = item.memo || '';
+item.memo = buildInsMemo(prevMemo, state);
+var fresh = buildCard(item);
+card.replaceWith(fresh);
+renderInsFilter();
+// 미제작만 보기 중에 제작완료로 바꾸면 목록에서 빠지도록 다시 그림
+if (key === 'done' && insFilterActive()) setTimeout(renderItems, 350);
+var revert = function() {
+item.memo = prevMemo;
+toast('저장 실패');
+renderItems();
+};
+apiFetch('/update', 'POST', { id: item.id, folders: item.folders || [], memo: item.memo },
+function(data) { if (data && data.error) revert(); },
+revert
+);
 }
 
 // ── 카드 수정 (링크/메모/이미지 공통) ────────────────────────────────────────
