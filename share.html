@@ -271,6 +271,56 @@
       font-weight: 700;
     }
 
+    .ins-section {
+      display: none;
+      margin: -8px 0 20px;
+    }
+
+    .ins-section.show {
+      display: block;
+    }
+
+    .ins-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .ins-btn {
+      flex: 1;
+      padding: 9px 4px;
+      border: 2px solid var(--pink-light);
+      border-radius: 12px;
+      background: var(--white);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: #B8AAB5;
+      white-space: nowrap;
+    }
+
+    .ins-btn:active {
+      transform: scale(.96);
+    }
+
+    .ins-btn.on.done {
+      background: #E6F6EA;
+      border-color: #6BBF7B;
+      color: #2F8A43;
+    }
+
+    .ins-btn.on.dosirak {
+      background: var(--pink-pale);
+      border-color: var(--pink);
+      color: var(--pink-deep);
+    }
+
+    .ins-btn.on.cook {
+      background: #F1EAFB;
+      border-color: #B79FDE;
+      color: #7A5DB5;
+    }
+
     .memo-label {
       font-size: 15px;
       font-weight: 700;
@@ -410,6 +460,11 @@
   <div class="section-label">어떤 폴더에 담을까요?</div>
   <div class="folder-grid" id="folderGrid">
     <div class="loading-folders">폴더 불러오는 중…</div>
+  </div>
+
+  <div class="ins-section" id="insSection">
+    <div class="section-label">인사이트 체크</div>
+    <div class="ins-row" id="insRow"></div>
   </div>
 
   <div class="memo-label">메모</div>
@@ -758,6 +813,57 @@ function selectFolder(name, btn) {
   }
 
   document.getElementById('btnConfirm').disabled = selectedFolders.length === 0;
+  renderInsSection();
+}
+
+// ─── 인사이트 체크 (index.html과 같은 태그 형식으로 메모 끝에 붙임) ─────────
+const INSIGHT_FOLDER = '인사이트';
+const INS_TAGS = { done: '#콘텐츠완료', dosirak: '#도시락', cook: '#일반요리' };
+const INS_LABELS = { done: '🎬 제작완료', dosirak: '🍱 도시락', cook: '🍳 일반요리' };
+const insState = { done: false, dosirak: false, cook: false };
+
+function insightSelected() {
+  return selectedFolders.some(function(f) { return f.indexOf(INSIGHT_FOLDER) >= 0; });
+}
+
+function renderInsSection() {
+  const section = document.getElementById('insSection');
+  section.classList.toggle('show', insightSelected());
+
+  const row = document.getElementById('insRow');
+  row.innerHTML = '';
+
+  Object.keys(INS_TAGS).forEach(function(k) {
+    const b = document.createElement('button');
+    b.className = 'ins-btn ' + k + (insState[k] ? ' on' : '');
+    b.textContent = INS_LABELS[k];
+    b.onclick = function() { toggleIns(k); };
+    row.appendChild(b);
+  });
+}
+
+function toggleIns(key) {
+  if (key === 'done') {
+    insState.done = !insState.done;
+  } else {
+    // 도시락/일반요리는 둘 중 하나만
+    const on = !insState[key];
+    insState.dosirak = false;
+    insState.cook = false;
+    insState[key] = on;
+  }
+  renderInsSection();
+}
+
+function withInsTags(memo) {
+  if (!insightSelected()) return memo;
+
+  const tags = Object.keys(INS_TAGS)
+    .filter(function(k) { return insState[k]; })
+    .map(function(k) { return INS_TAGS[k]; });
+
+  if (!tags.length) return memo;
+  return memo + (memo ? '\n' : '') + tags.join(' ');
 }
 
 async function addFolder() {
@@ -783,7 +889,7 @@ async function addFolder() {
 async function saveShare() {
   if (!shareData) return;
 
-  const memo = document.getElementById('memoInput').value.trim();
+  const memo = withInsTags(document.getElementById('memoInput').value.trim());
   const overlay = document.getElementById('savingOverlay');
   const confirmBtn = document.getElementById('btnConfirm');
 
@@ -903,7 +1009,7 @@ async function saveShare() {
           title: shareData.text || shareData.title || '메모',
           url: '',
           folders: selectedFolders,
-          memo: shareData.text || memo
+          memo: shareData.text ? withInsTags(shareData.text) : memo
         };
 
     const xhr2 = new XMLHttpRequest();
