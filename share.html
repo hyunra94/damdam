@@ -328,6 +328,12 @@
       color: #B7791F;
     }
 
+    .ins-btn.on.dessert {
+      background: #FDEBE3;
+      border-color: #E9967A;
+      color: #B5543A;
+    }
+
     .memo-label {
       font-size: 15px;
       font-weight: 700;
@@ -825,9 +831,10 @@ function selectFolder(name, btn) {
 
 // ─── 인사이트 체크 (index.html과 같은 태그 형식으로 메모 끝에 붙임) ─────────
 const INSIGHT_FOLDER = '인사이트';
-const INS_TAGS = { done: '#콘텐츠완료', dosirak: '#도시락', cook: '#일반요리', morning: '#아침' };
-const INS_LABELS = { done: '🎬 제작완료', dosirak: '🍱 도시락', cook: '🍳 일반요리', morning: '🌅 아침' };
-const insState = { done: false, dosirak: false, cook: false, morning: false };
+// 제작완료(#콘텐츠완료)는 메인 화면에서만 체크
+const INS_TAGS = { dosirak: '#도시락', cook: '#일반요리', morning: '#아침', dessert: '#디저트' };
+const INS_LABELS = { dosirak: '🍱 도시락', cook: '🍳 일반요리', morning: '🌅 아침', dessert: '🍰 디저트' };
+const insState = { dosirak: false, cook: false, morning: false, dessert: false };
 
 function insightSelected() {
   return selectedFolders.some(function(f) { return f.indexOf(INSIGHT_FOLDER) >= 0; });
@@ -850,16 +857,10 @@ function renderInsSection() {
 }
 
 function toggleIns(key) {
-  if (key === 'done') {
-    insState.done = !insState.done;
-  } else {
-    // 도시락/일반요리/아침은 셋 중 하나만
-    const on = !insState[key];
-    insState.dosirak = false;
-    insState.cook = false;
-    insState.morning = false;
-    insState[key] = on;
-  }
+  // 도시락/일반요리/아침/디저트는 하나만
+  const on = !insState[key];
+  Object.keys(insState).forEach(function(k) { insState[k] = false; });
+  insState[key] = on;
   renderInsSection();
 }
 

@@ -80,6 +80,7 @@ background-attachment:fixed;
 .ins-btn.on.dosirak{background:var(--pink-p);border-color:var(--pink);color:var(--pink-d)}
 .ins-btn.on.cook{background:#F1EAFB;border-color:var(--lav-d);color:#7A5DB5}
 .ins-btn.on.morning{background:#FFF4DC;border-color:#F2B84B;color:#B7791F}
+.ins-btn.on.dessert{background:#FDEBE3;border-color:#E9967A;color:#B5543A}
 
 /* 빈/로딩 */
 .empty{text-align:center;padding:60px 20px;color:var(--sub);column-span:all}
@@ -663,8 +664,8 @@ return card;
 
 // ── 인사이트 체크 (메모 끝에 태그로 저장) ───────────────────────────────────
 var INSIGHT_FOLDER = '인사이트';
-var INS_TAGS = { done: '#콘텐츠완료', dosirak: '#도시락', cook: '#일반요리', morning: '#아침' };
-var INS_LABELS = { done: '🎬 제작완료', dosirak: '🍱 도시락', cook: '🍳 일반요리', morning: '🌅 아침' };
+var INS_TAGS = { done: '#콘텐츠완료', dosirak: '#도시락', cook: '#일반요리', morning: '#아침', dessert: '#디저트' };
+var INS_LABELS = { done: '🎬 제작완료', dosirak: '🍱 도시락', cook: '🍳 일반요리', morning: '🌅 아침', dessert: '🍰 디저트' };
 var insUndoneOnly = false;
 
 // 미제작만 보기: 인사이트 폴더를 보고 있을 때만 노출
@@ -720,9 +721,9 @@ var state = insState(item.memo);
 if (key === 'done') {
 state.done = !state.done;
 } else {
-// 도시락/일반요리/아침은 셋 중 하나만
+// 도시락/일반요리/아침/디저트는 하나만
 var on = !state[key];
-state.dosirak = false; state.cook = false; state.morning = false;
+state.dosirak = false; state.cook = false; state.morning = false; state.dessert = false;
 state[key] = on;
 }
 var prevMemo = item.memo || '';
