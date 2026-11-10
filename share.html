@@ -456,6 +456,59 @@
       font-weight: 500;
       color: var(--pink-deep);
     }
+
+    /* 태블릿 (768px~): 하단 시트 대신 가운데 대화상자, 터치 영역 확대 */
+    @media (min-width: 768px) {
+      body {
+        align-items: center;
+        padding: 24px;
+      }
+
+      .sheet {
+        max-width: 600px;
+        border-radius: 24px;
+        border: 3px solid var(--pink-deep);
+        padding: 24px 28px 28px;
+        box-shadow: 5px 5px 0 rgba(74,58,70,.18);
+      }
+
+      .handle {
+        display: none;
+      }
+
+      .btn-cancel {
+        font-size: 16px;
+        padding: 8px 4px;
+      }
+
+      .btn-confirm {
+        font-size: 16px;
+        padding: 10px 28px;
+      }
+
+      .folder-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      .folder-btn {
+        padding: 13px 8px;
+        font-size: 15px;
+      }
+
+      .ins-row {
+        gap: 10px;
+      }
+
+      .ins-btn {
+        padding: 12px 6px;
+        font-size: 14px;
+      }
+
+      .memo-input {
+        font-size: 16px;
+      }
+    }
   </style>
 </head>
 
